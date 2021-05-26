@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { v4 as uuid } from "uuid";
 import List from "./components/List/List";
-import constantData,{types} from "./constants/Data";
+import constantData, { types } from "./constants/Data";
 import StoreApi from "./utils/storeApi";
 import InputContainer from "./components/Input/InputContainer";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,12 +19,12 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-export default function App():React.ReactElement {
+export default function App(): React.ReactElement {
   const [data, setData] = useState<types>(constantData);
 
   const classes = useStyle();
 
-  const addMoreCard = (title:string, listId:string) => {
+  const addMoreCard = (title: string, listId: string) => {
     // console.log(title, listId);
 
     const newCardId = uuid();
@@ -46,7 +46,7 @@ export default function App():React.ReactElement {
     setData(newState);
   };
 
-  const addMoreList = (title:string) => {
+  const addMoreList = (title: string) => {
     const newListId = uuid();
     const newList = {
       id: newListId,
@@ -63,7 +63,12 @@ export default function App():React.ReactElement {
     setData(newState);
   };
 
-  const onDragEnd = (result: { destination: any; source: any; draggableId: any; type: any; }) => {
+  const onDragEnd = (result: {
+    destination: any;
+    source: any;
+    draggableId: any;
+    type: any;
+  }): undefined | void => {
     const { destination, source, draggableId, type } = result;
     console.log("destination", destination, "source", source, draggableId);
 
@@ -80,7 +85,7 @@ export default function App():React.ReactElement {
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
     const draggingCard = sourceList.cards.filter(
-      (card: { id: any; }) => card.id === draggableId
+      (card: { id: any }) => card.id === draggableId
     )[0];
 
     if (source.droppableId === destination.droppableId) {
