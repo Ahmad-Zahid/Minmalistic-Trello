@@ -5,7 +5,7 @@ import constantData, { types } from "./constants/Data";
 import StoreApi from "./utils/storeApi";
 import InputContainer from "./components/Input/InputContainer";
 import { makeStyles } from "@material-ui/core/styles";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -63,12 +63,7 @@ export default function App(): React.ReactElement {
     setData(newState);
   };
 
-  const onDragEnd = (result: {
-    destination: any;
-    source: any;
-    draggableId: any;
-    type: any;
-  }): undefined | void => {
+  const onDragEnd = (result:DropResult): undefined | void => {
     const { destination, source, draggableId, type } = result;
     console.log("destination", destination, "source", source, draggableId);
 
