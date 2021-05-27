@@ -128,12 +128,10 @@ export default function App(): React.ReactElement {
                       list={list}
                       key={listId}
                       index={index}
-                      addMore={addMoreCard}
-                      addList={addMoreList}
                     />
                   );
                 })}
-                <InputContainer type="list" />
+                <InputContainer type="list" listId={'x'} />
                 {provided.placeholder}
               </div>
             )}

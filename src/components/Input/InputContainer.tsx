@@ -17,10 +17,16 @@ const useStyle = makeStyles((theme) => ({
     },
   },
 }));
-
-export default function InputContainer({ listId, type,addCard,addList }) {
+interface InputContainerProps {
+  listId: string;
+  type: string;
+}
+export default function InputContainer({
+  listId,
+  type,
+}: InputContainerProps): React.ReactElement {
   const classes = useStyle();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
   return (
     <div className={classes.root}>
       <Collapse in={open}>

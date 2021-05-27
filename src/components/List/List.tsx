@@ -16,7 +16,17 @@ const useStyle = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
   },
 }));
-export default function List({ list, index, addCard, addList }) {
+
+interface ListProps{
+  list:{
+    id:string,
+    title:string,
+    cards:Array<any>
+  },
+  index:number 
+  
+}
+export default function List({ list, index }:ListProps):React.ReactElement {
   const classes = useStyle();
   return (
     <Draggable draggableId={list.id} index={index}>
@@ -24,7 +34,7 @@ export default function List({ list, index, addCard, addList }) {
         <div {...provided.draggableProps} ref={provided.innerRef}>
           <Paper className={classes.root} {...provided.dragHandleProps}>
             <CssBaseline />
-            <Title title={list.title} listId={list.id} />
+            <Title title={list.title} />
             <Droppable droppableId={list.id}>
               {(provided) => (
                 <div
@@ -42,8 +52,6 @@ export default function List({ list, index, addCard, addList }) {
             <InputContainer
               listId={list.id}
               type="card"
-              addCard={addCard}
-              addList={addList}
             />
           </Paper>
         </div>
