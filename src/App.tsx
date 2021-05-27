@@ -6,6 +6,7 @@ import StoreApi from "./utils/storeApi";
 import InputContainer from "./components/Input/InputContainer";
 import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import Grid from '@material-ui/core/Grid';
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -13,10 +14,22 @@ const useStyle = makeStyles((theme) => ({
     background: "green",
     width: "100%",
     overflowY: "auto",
+    [theme.breakpoints.down("xs")]: {
+      background: "blue",
+    },
   },
   listContainer: {
     display: "flex",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      // columnCount:3
+    },
+  
   },
+  my:{
+    display: "flex",
+    columns:4
+  }
 }));
 
 export default function App(): React.ReactElement {
@@ -63,7 +76,7 @@ export default function App(): React.ReactElement {
     setData(newState);
   };
 
-  const onDragEnd = (result:DropResult): undefined | void => {
+  const onDragEnd = (result: DropResult): undefined | void => {
     const { destination, source, draggableId, type } = result;
     console.log("destination", destination, "source", source, draggableId);
 
@@ -117,21 +130,15 @@ export default function App(): React.ReactElement {
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (
               <div
-                className={classes.listContainer}
+                className={`${classes.listContainer} ${classes.my}`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
                 {data.listIds.map((listId, index) => {
                   const list = data.lists[listId];
-                  return (
-                    <List
-                      list={list}
-                      key={listId}
-                      index={index}
-                    />
-                  );
+                  return <List list={list} key={listId} index={index} />;
                 })}
-                <InputContainer type="list" listId={'x'} />
+                <InputContainer type="list" listId={"x"} />
                 {provided.placeholder}
               </div>
             )}

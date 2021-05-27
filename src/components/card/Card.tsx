@@ -1,58 +1,36 @@
-import React, { useState } from "react";
-import { Draggable, DraggingStyle, NotDraggingStyle } from "react-beautiful-dnd";
+import React from "react";
+import { Paper } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { Draggable } from "react-beautiful-dnd";
 
-const grid = 8;
-const getItemStyle = (isDragging: boolean, draggableStyle:any) => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-  display:'flex',
-  flexDirection:'column',
-  justifyContent:'space-between',
-  minHeight:20,
-  width:200,
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
+const useStyle = makeStyles((theme) => ({
+  card: {
+    padding: theme.spacing(1, 1, 1, 2),
+    margin: theme.spacing(1),
+  },
+}));
 
-  // styles we need to apply on draggables
-  ...draggableStyle,
-});
 interface CardProps {
-  item: {
+  card: {
     id: string;
-    index: number;
-    content:any
+    title: string;
   };
-  ind: number;
   index: number;
-  onPress:()=>void
 }
-function Card({ item, ind, index ,onPress}: CardProps): React.ReactElement {
+export default function Card({ card, index }: CardProps): React.ReactElement {
+  const classes = useStyle();
+
   return (
-    <Draggable key={item.id} draggableId={item.id} index={index}>
-      {(provided, snapshot) => (
+    <Draggable draggableId={card.id} index={index}>
+      {(provided) => (
         <div
           ref={provided.innerRef}
-          {...provided.draggableProps}
           {...provided.dragHandleProps}
-          style={getItemStyle(
-            snapshot.isDragging,
-            provided.draggableProps.style
-          )}
+          {...provided.draggableProps}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-            }}
-          >
-            {item.content}
-          </div>
+          <Paper className={classes.card}>{card.title}</Paper>
         </div>
       )}
     </Draggable>
   );
 }
-
-export default Card;
