@@ -1,8 +1,13 @@
 import React, { useState, useContext } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
-import ClearIcon from "@material-ui/icons/Clear";
+import { Add, Clear } from "@material-ui/icons";
 import { makeStyles, fade } from "@material-ui/core/styles";
 import storeApi from "../../utils/storeApi";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import NativeSelect from "@material-ui/core/NativeSelect";
 
 const useStyle = makeStyles((theme) => ({
   card: {
@@ -23,6 +28,13 @@ const useStyle = makeStyles((theme) => ({
   confirm: {
     margin: theme.spacing(0, 1, 1, 1),
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 interface InputCardProps {
@@ -32,15 +44,27 @@ interface InputCardProps {
 }
 export default function InputCard({ setOpen, listId, type }: InputCardProps) {
   const classes = useStyle();
-  const { addMoreCard, addMoreList } = useContext(storeApi);
+  const { addMoreCard, addMoreList, users } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
+  const [user, setUser] = useState<any>("");
 
-  const handleOnChange = (e:any):void => { 
+  const handleChange = (event: any) => {
+    console.log('user',event.target)
+    let value = {task: event.target.value}
+    console.log('value',value);
+
+    // setItem(value);
+
+    setUser(event.target.value);
+    // console.log('user',event.target.value.name)
+    // alert(JSON.stringify(event.target.value))
+  };
+  const handleOnChange = (e: any): void => {
     setTitle(e.target.value);
   };
-  const handleBtnConfirm = ():void => {
+  const handleBtnConfirm = (): void => {
     if (type === "card") {
-      addMoreCard(title, listId);
+      addMoreCard(title, listId, user);
       setTitle("");
       setOpen(false);
     } else {
@@ -70,13 +94,37 @@ export default function InputCard({ setOpen, listId, type }: InputCardProps) {
             }
           />
         </Paper>
+        {type === "card" && (
+          <FormControl className={classes.formControl}>
+            <InputLabel htmlFor="age-native-simple">Select Member</InputLabel>
+            <Select
+              native
+              value={user.name ? user.name.first + " " : user}
+              onChange={handleChange}
+              inputProps={{
+                name: "members",
+                id: "members-native-simple",
+              }}
+            >
+              <option aria-label="None" value="" />
+              {users.length > 0 &&
+                users.map((item: any, index: any) => {
+                  return (
+                    <option value={item}>
+                      {item.name.first + " " + item.name.last}
+                    </option>
+                  );
+                })}
+            </Select>
+          </FormControl>
+        )}
       </div>
       <div className={classes.confirm}>
         <Button className={classes.btnConfirm} onClick={handleBtnConfirm}>
           {type === "card" ? "Add Card" : "Add List"}
         </Button>
         <IconButton onClick={() => setOpen(false)}>
-          <ClearIcon />
+          <Clear />
         </IconButton>
       </div>
     </div>
