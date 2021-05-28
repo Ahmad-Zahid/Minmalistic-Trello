@@ -8,6 +8,7 @@ import StoreApi from "../../utils/storeApi";
 import InputContainer from "../../components/Input/InputContainer";
 import { fetchUsers } from "../../network/Api";
 import { useLocation } from "react-router";
+import TopBar from "../Header/TopBar";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -35,7 +36,7 @@ const useStyle = makeStyles((theme) => ({
 export default function Board(): React.ReactElement {
   const [data, setData] = useState<types>(constantData);
   const [users, setUsers] = useState<any>([]);
-  const location:any = useLocation();
+  const location: any = useLocation();
   const classes = useStyle();
 
   useEffect(() => {
@@ -149,6 +150,7 @@ export default function Board(): React.ReactElement {
         className={classes.root}
         style={{ backgroundColor: location.state.color }}
       >
+          <TopBar title={location.state.title}/>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (
