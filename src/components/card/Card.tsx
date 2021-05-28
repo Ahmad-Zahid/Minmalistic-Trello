@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Draggable } from "react-beautiful-dnd";
 import { Delete } from "@material-ui/icons";
 import storeApi from "../../utils/storeApi";
-import Avatar from '@material-ui/core/Avatar';
+// import Avatar from '@material-ui/core/Avatar';
 
 const useStyle = makeStyles((theme) => ({
   card: {

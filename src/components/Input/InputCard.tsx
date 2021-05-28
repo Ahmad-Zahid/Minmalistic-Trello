@@ -1,13 +1,11 @@
 import React, { useState, useContext } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
-import { Add, Clear } from "@material-ui/icons";
+import {  Clear } from "@material-ui/icons";
 import { makeStyles, fade } from "@material-ui/core/styles";
 import storeApi from "../../utils/storeApi";
 import InputLabel from "@material-ui/core/InputLabel";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import NativeSelect from "@material-ui/core/NativeSelect";
 
 const useStyle = makeStyles((theme) => ({
   card: {
@@ -42,16 +40,16 @@ interface InputCardProps {
   listId: string;
   type: string;
 }
-export default function InputCard({ setOpen, listId, type }: InputCardProps) {
+export default function InputCard({ setOpen, listId, type }: InputCardProps):React.ReactElement {
   const classes = useStyle();
   const { addMoreCard, addMoreList, users } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<any>("");
 
   const handleChange = (event: any) => {
-    console.log('user',event.target)
-    let value = {task: event.target.value}
-    console.log('value',value);
+    // console.log("user", event.target);
+    // const value = { task: event.target.value };
+    // console.log("value", value);
 
     // setItem(value);
 
@@ -108,7 +106,7 @@ export default function InputCard({ setOpen, listId, type }: InputCardProps) {
             >
               <option aria-label="None" value="" />
               {users.length > 0 &&
-                users.map((item: any, index: any) => {
+                users.map((item: any) => {
                   return (
                     <option value={item}>
                       {item.name.first + " " + item.name.last}

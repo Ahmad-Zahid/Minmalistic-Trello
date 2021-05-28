@@ -1,4 +1,4 @@
-export const fetchUsers = async () => {
+export const fetchUsers = async (): Promise<any> => {
   return await new Promise((resolve) => {
     fetch("https://randomuser.me/api/?results=5")
       .then(async (response) => {

@@ -67,7 +67,7 @@ export default function Board(): React.ReactElement {
     setData(newState);
   };
   const removeCard = (card: any) => {
-    let temp = { ...data };
+    const temp = { ...data };
     for (const item in data.lists) {
       for (const listItem in data.lists[item]) {
         const deleteIndex = data.lists[item].cards.findIndex(
