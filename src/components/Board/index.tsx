@@ -16,9 +16,6 @@ const useStyle = makeStyles((theme) => ({
     background: "green",
     width: "100%",
     overflowY: "auto",
-    [theme.breakpoints.down("xs")]: {
-      background: "blue",
-    },
   },
   listContainer: {
     display: "flex",
@@ -97,10 +94,63 @@ export default function Board(): React.ReactElement {
     setData(newState);
   };
 
+  const validations = (source: string, destination: any) => {
+    switch (source) {
+      case "list-1":
+        if (
+          destination === "list-3" ||
+          destination === "list-4" ||
+          destination === "list-5" ||
+          destination === "list-6" ||
+          destination === "list-7"
+        )
+          return false;
+        return true;
+      case "list-2":
+        if (
+          destination === "list-5" ||
+          destination === "list-6" ||
+          destination === "list-7"
+        )
+          return false;
+        return true;
+      case "list-3":
+        if (destination === "list-6" || destination === "list-7") return false;
+        return true;
+      case "list-4":
+        if (
+          destination === "list-3" ||
+          destination === "list-6" ||
+          destination === "list-7"
+        )
+          return false;
+        return true;
+      case "list-5":
+        if (
+          destination === "list-3" ||
+          destination === "list-6" ||
+          destination === "list-7"
+        )
+          return false;
+        return true;
+      case "list-6":
+        if (
+          destination === "list-2" ||
+          destination === "list-4" ||
+          destination === "list-5"
+        )
+          return false;
+
+        return true;
+      case "list-7":
+        return false;
+    }
+  };
   const onDragEnd = (result: DropResult): undefined | void => {
     const { destination, source, draggableId, type } = result;
-    console.log("destination", destination, "source", source, draggableId);
-
+    // console.log("destination", destination, "source", source, draggableId);
+    // console.log(validations(source.droppableId, destination?.droppableId));
+    if (!validations(source.droppableId, destination?.droppableId)) return;
     if (!destination) {
       return;
     }
@@ -150,7 +200,7 @@ export default function Board(): React.ReactElement {
         className={classes.root}
         style={{ backgroundColor: location.state.color }}
       >
-          <TopBar title={location.state.title}/>
+        <TopBar title={location.state.title} />
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (
