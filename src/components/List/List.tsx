@@ -8,7 +8,6 @@ import InputContainer from "../Input/InputContainer";
 
 const useStyle = makeStyles((theme) => ({
   root: {
-    // minWidth: "300px",
     backgroundColor: "#EBECF0",
     marginLeft: theme.spacing(1),
     [theme.breakpoints.down("xs")]: {

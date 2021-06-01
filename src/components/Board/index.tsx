@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect ,ReactElement} from "react";
 import { v4 as uuid } from "uuid";
 import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import List from "../../components/List/List";
-import constantData, { types } from "../../constants/Data";
-import StoreApi from "../../utils/storeApi";
+import constantData, { types } from "../../constants/data";
+import StoreApi from "../../utils/context";
 import InputContainer from "../../components/Input/InputContainer";
-import { fetchUsers } from "../../network/Api";
+import { fetchUsers } from "../../service/api";
 import { useLocation } from "react-router";
 import TopBar from "../Header/TopBar";
 
@@ -30,7 +30,14 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-export default function Board(): React.ReactElement {
+export default function Board(): ReactElement {
+
+  let localData = localStorage.getItem("user");
+  console.log('localData',localData)
+
+  if (localData) localData = JSON.parse(localData);
+  console.log('localData',localData)
+  const [preferences, setPreferences] = useState<any>(localData);
   const [data, setData] = useState<types>(constantData);
   const [users, setUsers] = useState<any>([]);
   const location: any = useLocation();
@@ -198,9 +205,9 @@ export default function Board(): React.ReactElement {
     <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard, users }}>
       <div
         className={classes.root}
-        style={{ backgroundColor: location.state.color }}
+        style={{ backgroundColor: preferences.color }}
       >
-        <TopBar title={location.state.title} />
+        <TopBar title={preferences.boardTitle} />
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (

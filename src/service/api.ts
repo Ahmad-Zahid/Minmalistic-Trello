@@ -1,3 +1,7 @@
+import axios from 'axios';
+
+const BASE_URL = "https://randomuser.me/api/?results="
+
 export const fetchUsers = async (): Promise<any> => {
   return await new Promise((resolve) => {
     fetch("https://randomuser.me/api/?results=5")

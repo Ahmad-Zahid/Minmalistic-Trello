@@ -1,10 +1,15 @@
-import { useState } from "react";
+// Packages
+import { useState, useEffect,ReactElement } from "react";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { CirclePicker } from "react-color";
 import { useHistory } from "react-router-dom";
+
+// Navigation
+import { useAuth } from "../../navigation";
+import { routes } from "../../constants/routes";
 
 const useStyle = makeStyles(() => ({
   container: {
@@ -29,33 +34,49 @@ const useStyle = makeStyles(() => ({
     textDecorationLine: "none",
   },
 }));
-export default function Main(): React.ReactElement {
+
+export default function Welcome(): ReactElement {
   const [currentColor, setCurrentColor] = useState("#000");
   const [pickColor, setPickColor] = useState(false);
   const [title, setTitle] = useState("");
-
   const history = useHistory();
-
+  const auth: any = useAuth();
   const classes: any = useStyle();
+
+  // useEffect(()=>{
+  //   const localData = localStorage.getItem("user");
+  //   if (localData) {
+  //     history.replace({
+  //       pathname: routes.board,
+  //     });
+  //   }
+  // },[])
   const handleColorChange = ({ hex }: { hex: any }) => {
     setCurrentColor(hex);
   };
+
   const handOnChangeText = (event: any) => {
     setTitle(event.target.value);
-    setPickColor(true);
+    if (event.target.value !== "") setPickColor(true);
+    else setPickColor(false);
   };
   const onButtonPress = () => {
-    history.push({
-      pathname:"/board",
-      state:{
-      color:currentColor,
-      title:title
-    }});
+    const user = {
+      title: title,
+      color: currentColor,
+    };
+    auth.signin(user, () => {
+      history.replace({
+        pathname: routes.board,
+      });
+    });
   };
 
   return (
     <div className={classes.container}>
-      <h1>Welcome to Trello</h1>
+      <Typography variant="h2" gutterBottom>
+        Welcome to Trello
+      </Typography>
       <Typography variant="h5" gutterBottom>
         Get Started with Trello by creating a new board!
       </Typography>

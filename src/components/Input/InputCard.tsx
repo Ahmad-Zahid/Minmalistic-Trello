@@ -1,11 +1,14 @@
+// Packages
 import React, { useState, useContext } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
-import {  Clear } from "@material-ui/icons";
+import { Clear } from "@material-ui/icons";
 import { makeStyles, fade } from "@material-ui/core/styles";
-import storeApi from "../../utils/storeApi";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
+
+// Utils
+import storeApi from "../../utils/context";
 
 const useStyle = makeStyles((theme) => ({
   card: {
@@ -34,28 +37,24 @@ const useStyle = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 }));
-
 interface InputCardProps {
   setOpen: (value: boolean) => void;
   listId: string;
   type: string;
 }
-export default function InputCard({ setOpen, listId, type }: InputCardProps):React.ReactElement {
+
+export default function InputCard({
+  setOpen,
+  listId,
+  type,
+}: InputCardProps): React.ReactElement {
   const classes = useStyle();
   const { addMoreCard, addMoreList, users } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<any>("");
 
   const handleChange = (event: any) => {
-    // console.log("user", event.target);
-    // const value = { task: event.target.value };
-    // console.log("value", value);
-
-    // setItem(value);
-
     setUser(event.target.value);
-    // console.log('user',event.target.value.name)
-    // alert(JSON.stringify(event.target.value))
   };
   const handleOnChange = (e: any): void => {
     setTitle(e.target.value);
