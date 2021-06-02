@@ -1,14 +1,23 @@
-import  { useState, useEffect ,ReactElement} from "react";
+// Packages
+import { useState, useEffect, ReactElement } from "react";
 import { v4 as uuid } from "uuid";
 import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import List from "../../components/List/List";
-import constantData, { types } from "../../constants/data";
-import StoreApi from "../../utils/context";
-import InputContainer from "../../components/Input/InputContainer";
-import { fetchUsers } from "../../service/api";
 import { useLocation } from "react-router";
+
+// Components
 import TopBar from "../Header/TopBar";
+import List from "../../components/List/List";
+import InputContainer from "../../components/Input/InputContainer";
+
+// Constants
+import constantData, { types } from "../../constants/data";
+
+// Utils
+import StoreApi from "../../utils/context";
+
+// Service
+import { fetchUsers } from "../../service/api";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -31,12 +40,11 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 export default function Board(): ReactElement {
-
   let localData = localStorage.getItem("user");
-  console.log('localData',localData)
+  console.log("localData", localData);
 
   if (localData) localData = JSON.parse(localData);
-  console.log('localData',localData)
+  console.log("localData", localData);
   const [preferences, setPreferences] = useState<any>(localData);
   const [data, setData] = useState<types>(constantData);
   const [users, setUsers] = useState<any>([]);
@@ -67,7 +75,6 @@ export default function Board(): ReactElement {
         [listId]: list,
       },
     };
-    // console.log('state',newState)
     setData(newState);
   };
   const removeCard = (card: any) => {
@@ -155,8 +162,6 @@ export default function Board(): ReactElement {
   };
   const onDragEnd = (result: DropResult): undefined | void => {
     const { destination, source, draggableId, type } = result;
-    // console.log("destination", destination, "source", source, draggableId);
-    // console.log(validations(source.droppableId, destination?.droppableId));
     if (!validations(source.droppableId, destination?.droppableId)) return;
     if (!destination) {
       return;
