@@ -15,7 +15,7 @@ const fakeAuth = {
 const authContext = createContext<any>(null);
 
 export function ProvideAuth({ children }: { children: any }): ReactElement {
-  const auth = useProvideAuth();
+   const auth = useProvideAuth();
   return <authContext.Provider value={auth}>{children}</authContext.Provider>;
 }
 

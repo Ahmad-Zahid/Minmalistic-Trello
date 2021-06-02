@@ -7,9 +7,9 @@ import Board from "./components/Board";
 import Welcome from "./components/Welcome";
 
 // Navigation
-import { ProvideAuth } from "./navigation";
-import { PrivateRoute } from "./navigation/PrivateRoute";
-import { PublicRoute } from "./navigation/PublicRoute";
+import { ProvideAuth } from "./routes";
+import { PrivateRoute } from "./routes/PrivateRoute";
+import { PublicRoute } from "./routes/PublicRoute";
 
 // Constants
 import { routes } from "./constants/routes";

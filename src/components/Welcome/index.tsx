@@ -8,7 +8,7 @@ import { CirclePicker } from "react-color";
 import { useHistory } from "react-router-dom";
 
 // Navigation
-import { useAuth } from "../../navigation";
+import { useAuth } from "../../routes";
 import { routes } from "../../constants/routes";
 
 const useStyle = makeStyles(() => ({
