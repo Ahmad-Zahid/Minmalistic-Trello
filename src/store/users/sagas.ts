@@ -3,7 +3,7 @@ import { all, call, put, takeEvery } from 'redux-saga/effects';
 import { SagaIterator } from 'redux-saga';
 
 // Services
-import { fetchUsers } from "../../service/api";
+import { fetchUsers } from "./api";
 
 // Actions
 import { getUsersSuccess } from "./actions";
