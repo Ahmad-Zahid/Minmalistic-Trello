@@ -3,7 +3,7 @@ import { useState, useEffect, ReactElement } from "react";
 import { v4 as uuid } from "uuid";
 import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useLocation } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 
 // Components
 import TopBar from "../Header/TopBar";
@@ -16,8 +16,8 @@ import constantData, { types } from "../../constants/data";
 // Utils
 import StoreApi from "../../utils/context";
 
-// Service
-import { fetchUsers } from "../../service/api";
+// Actions
+import { getUsers } from "../../store/users/actions";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -30,7 +30,6 @@ const useStyle = makeStyles((theme) => ({
     display: "flex",
     [theme.breakpoints.down("xs")]: {
       flexDirection: "column",
-      // columnCount:3
     },
   },
   my: {
@@ -41,23 +40,20 @@ const useStyle = makeStyles((theme) => ({
 
 export default function Board(): ReactElement {
   let localData = localStorage.getItem("user");
-  console.log("localData", localData);
-
   if (localData) localData = JSON.parse(localData);
-  console.log("localData", localData);
-  const [preferences, setPreferences] = useState<any>(localData);
+
+  const dispatch = useDispatch();
   const [data, setData] = useState<types>(constantData);
-  const [users, setUsers] = useState<any>([]);
-  const location: any = useLocation();
+  const preferences: any = localData;
   const classes = useStyle();
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchUsers();
-      if (data) setUsers(data.results);
+      dispatch(getUsers());
     };
     fetchData();
   }, []);
+
   const addMoreCard = (title: string, listId: string, user: any) => {
     const newCardId = uuid();
     const newCard = {
@@ -207,7 +203,7 @@ export default function Board(): ReactElement {
   };
 
   return (
-    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard, users }}>
+    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard }}>
       <div
         className={classes.root}
         style={{ backgroundColor: preferences.color }}

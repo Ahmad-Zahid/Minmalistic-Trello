@@ -1,7 +1,10 @@
+// Packages
 import React from "react";
 import { Paper, CssBaseline } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Droppable, Draggable } from "react-beautiful-dnd";
+
+// Components
 import Title from "./Title";
 import Card from "../Card";
 import InputContainer from "../Input/InputContainer";
@@ -32,7 +35,7 @@ export default function List({ list, index }: ListProps): React.ReactElement {
   return (
     <Draggable draggableId={list.id} index={index}>
       {(provided) => (
-        <div {...provided.draggableProps} ref={provided.innerRef}>
+        <div>
           <Paper className={classes.root} {...provided.dragHandleProps}>
             <CssBaseline />
             <Title title={list.title} />

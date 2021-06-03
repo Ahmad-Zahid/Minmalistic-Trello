@@ -6,6 +6,7 @@ import { makeStyles, fade } from "@material-ui/core/styles";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
+import { useSelector } from "react-redux";
 
 // Utils
 import storeApi from "../../utils/context";
@@ -49,7 +50,8 @@ export default function InputCard({
   type,
 }: InputCardProps): React.ReactElement {
   const classes = useStyle();
-  const { addMoreCard, addMoreList, users } = useContext(storeApi);
+  const users = useSelector((state: any) => state.users.users);
+  const { addMoreCard, addMoreList } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<any>("");
 
