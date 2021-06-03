@@ -1,5 +1,5 @@
 // Packages
-import { useState, useEffect,ReactElement } from "react";
+import { useState, ReactElement } from "react";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -9,6 +9,8 @@ import { useHistory } from "react-router-dom";
 
 // Navigation
 import { useAuth } from "../../routes";
+
+// Constants
 import { routes } from "../../constants/routes";
 
 const useStyle = makeStyles(() => ({
@@ -43,14 +45,6 @@ export default function Welcome(): ReactElement {
   const auth: any = useAuth();
   const classes: any = useStyle();
 
-  // useEffect(()=>{
-  //   const localData = localStorage.getItem("user");
-  //   if (localData) {
-  //     history.replace({
-  //       pathname: routes.board,
-  //     });
-  //   }
-  // },[])
   const handleColorChange = ({ hex }: { hex: any }) => {
     setCurrentColor(hex);
   };

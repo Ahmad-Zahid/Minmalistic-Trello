@@ -3,7 +3,7 @@ import { useState, useEffect, ReactElement } from "react";
 import { v4 as uuid } from "uuid";
 import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 // Components
 import TopBar from "../Header/TopBar";
@@ -11,7 +11,7 @@ import List from "../../components/List/List";
 import InputContainer from "../../components/Input/InputContainer";
 
 // Constants
-import constantData, { types } from "../../constants/data";
+import constantData, { types } from "../../constants/listsData";
 
 // Utils
 import StoreApi from "../../utils/context";
