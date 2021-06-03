@@ -1,11 +1,11 @@
 // Packages
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
 import { Clear } from "@material-ui/icons";
 import { makeStyles, fade } from "@material-ui/core/styles";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
+import Select from "react-select";
 import { useSelector } from "react-redux";
 
 // Utils
@@ -38,6 +38,9 @@ const useStyle = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 }));
+const styles = {
+  container: (css: any) => ({ ...css, width: "200px" }),
+};
 interface InputCardProps {
   setOpen: (value: boolean) => void;
   listId: string;
@@ -55,12 +58,21 @@ export default function InputCard({
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<any>("");
 
-  const handleChange = (event: any) => {
-    setUser(event.target.value);
+  const handleChangeDropdown = (selected: any) => {
+    setUser(selected.value);
   };
-  const handleOnChange = (e: any): void => {
+  const handleOnInputChange = (e: any): void => {
     setTitle(e.target.value);
   };
+  const names = useMemo(
+    () =>
+      users.map((item: any) => ({
+        label: item.name.first + " " + item.name.last,
+        value: item.name.first + " " + item.name.last,
+      })),
+    [users]
+  );
+
   const handleBtnConfirm = (): void => {
     if (type === "card") {
       addMoreCard(title, listId, user);
@@ -73,12 +85,18 @@ export default function InputCard({
     }
   };
 
+  const isAddDisabled = () => {
+    if (type === "card" && (title === "" || user === "")) return true;
+    else if (title === "") return true;
+    return false;
+  };
+
   return (
     <div>
       <div>
         <Paper className={classes.card}>
           <InputBase
-            onChange={handleOnChange}
+            onChange={handleOnInputChange}
             multiline
             onBlur={() => setOpen(false)}
             fullWidth
@@ -97,29 +115,20 @@ export default function InputCard({
           <FormControl className={classes.formControl}>
             <InputLabel htmlFor="age-native-simple">Select Member</InputLabel>
             <Select
-              native
-              value={user.name ? user.name.first + " " : user}
-              onChange={handleChange}
-              inputProps={{
-                name: "members",
-                id: "members-native-simple",
-              }}
-            >
-              <option aria-label="None" value="" />
-              {users.length > 0 &&
-                users.map((item: any) => {
-                  return (
-                    <option value={item}>
-                      {item.name.first + " " + item.name.last}
-                    </option>
-                  );
-                })}
-            </Select>
+              styles={styles}
+              onChange={handleChangeDropdown}
+              name="color"
+              options={names}
+            />
           </FormControl>
         )}
       </div>
       <div className={classes.confirm}>
-        <Button className={classes.btnConfirm} onClick={handleBtnConfirm}>
+        <Button
+          disabled={isAddDisabled()}
+          className={classes.btnConfirm}
+          onClick={handleBtnConfirm}
+        >
           {type === "card" ? "Add Card" : "Add List"}
         </Button>
         <IconButton onClick={() => setOpen(false)}>

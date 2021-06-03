@@ -1,5 +1,5 @@
 // Packages
-import React from "react";
+import { ReactElement } from "react";
 import { Paper, CssBaseline } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Droppable, Draggable } from "react-beautiful-dnd";
@@ -30,29 +30,31 @@ interface ListProps {
   };
   index: number;
 }
-export default function List({ list, index }: ListProps): React.ReactElement {
+export default function List({ list, index }: ListProps): ReactElement {
   const classes = useStyle();
   return (
     <Draggable draggableId={list.id} index={index}>
       {(provided) => (
-        <div>
+        <div key={index}>
           <Paper className={classes.root} {...provided.dragHandleProps}>
             <CssBaseline />
             <Title title={list.title} />
-            <Droppable droppableId={list.id}>
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={classes.cardContainer}
-                >
-                  {list.cards.map((card, index) => (
-                    <Card key={card.id} card={card} index={index} />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
+            <div {...provided.draggableProps} ref={provided.innerRef}>
+              <Droppable droppableId={list.id}>
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={classes.cardContainer}
+                  >
+                    {list.cards.map((card, index) => (
+                      <Card key={card.id} card={card} index={index} />
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
             <InputContainer listId={list.id} type="card" />
           </Paper>
         </div>

@@ -4,7 +4,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Draggable } from "react-beautiful-dnd";
 import { Delete } from "@material-ui/icons";
 import storeApi from "../../utils/context";
-// import Avatar from '@material-ui/core/Avatar';
 
 const useStyle = makeStyles((theme) => ({
   card: {
@@ -19,7 +18,7 @@ interface CardProps {
   card: {
     id: string;
     title: string;
-    user:any
+    user: any;
   };
   index: number;
 }
@@ -28,9 +27,8 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
   const { removeCard } = useContext(storeApi);
 
   const handleClick = () => {
-    removeCard(card)
+    removeCard(card);
   };
-  // console.log('card.user',(card.user))
   return (
     <Draggable draggableId={card.id} index={index}>
       {(provided) => (
@@ -41,7 +39,9 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
         >
           <Paper className={classes.card}>
             <Typography>{card.title}</Typography>
-            {/* <Avatar alt="Remy Sharp" src={card.user.picture.thumbnail} /> */}
+            <Typography>
+              {card.user.name ? card.user.name.first : ""}
+            </Typography>
             <Delete onClick={handleClick} />
           </Paper>
         </div>

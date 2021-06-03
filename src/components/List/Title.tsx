@@ -13,6 +13,7 @@ const useStyle = makeStyles((theme) => ({
     fontWeight: "bold",
   },
 }));
+
 export default function Title({
   title,
 }: {
