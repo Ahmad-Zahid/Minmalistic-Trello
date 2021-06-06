@@ -76,14 +76,13 @@ export default function Board(): ReactElement {
     setData(temp);
   };
   const editCard = (card: any) => {
-    console.log('card',card)
     const temp = { ...data };
     for (const currentList in data.lists) {
       for (const listItem in data.lists[currentList]) {
-        const deleteIndex = data.lists[currentList].cards.findIndex(
+        const cardIndex = data.lists[currentList].cards.findIndex(
           (itemx) => itemx.id === card.id
         );
-         temp.lists[currentList].cards[deleteIndex]= card
+         temp.lists[currentList].cards[cardIndex]= card
       }
     }
     setData(temp);
