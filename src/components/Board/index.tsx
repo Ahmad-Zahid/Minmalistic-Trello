@@ -23,10 +23,13 @@ import { useStyle } from "./styles";
 
 export default function Board(): ReactElement {
   let localData = localStorage.getItem("user");
+  let persistedData: any = localStorage.getItem("data");
   if (localData) localData = JSON.parse(localData);
+  if (persistedData) persistedData = JSON.parse(persistedData);
+  else persistedData = constantData;
 
   const dispatch = useDispatch();
-  const [data, setData] = useState<types>(constantData);
+  const [data, setData] = useState<types>(persistedData);
   const preferences: any = localData;
   const classes = useStyle();
 
@@ -36,6 +39,10 @@ export default function Board(): ReactElement {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("data", JSON.stringify(data));
+  }, [data]);
 
   const addMoreCard = (title: string, listId: string, user: any) => {
     const newCardId = uuid();
@@ -64,6 +71,19 @@ export default function Board(): ReactElement {
           (itemx) => itemx.id === card.id
         );
         if (deleteIndex > -1) temp.lists[item].cards.splice(deleteIndex, 1);
+      }
+    }
+    setData(temp);
+  };
+  const editCard = (card: any) => {
+    console.log('card',card)
+    const temp = { ...data };
+    for (const currentList in data.lists) {
+      for (const listItem in data.lists[currentList]) {
+        const deleteIndex = data.lists[currentList].cards.findIndex(
+          (itemx) => itemx.id === card.id
+        );
+         temp.lists[currentList].cards[deleteIndex]= card
       }
     }
     setData(temp);
@@ -186,7 +206,7 @@ export default function Board(): ReactElement {
   };
 
   return (
-    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard }}>
+    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard,editCard }}>
       <div
         className={classes.root}
         style={{ backgroundColor: preferences.color }}

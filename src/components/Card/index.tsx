@@ -1,8 +1,8 @@
 // Packages
-import React, { useContext } from "react";
-import { Paper, Typography } from "@material-ui/core";
+import { useContext, useState, ReactElement } from "react";
+import { Paper, Typography, InputBase } from "@material-ui/core";
 import { Draggable } from "react-beautiful-dnd";
-import { Delete } from "@material-ui/icons";
+import { Check, Delete, Edit } from "@material-ui/icons";
 
 // Utils
 import context from "../../utils/context";
@@ -20,16 +20,35 @@ interface CardProps {
   };
   index: number;
 }
-export default function Card({ card, index }: CardProps): React.ReactElement {
-  const classes = useStyle();
-  const { removeCard } = useContext(context);
-  const { user, title, id } = card;
+export default function Card({ card, index }: CardProps): ReactElement {
+  const { removeCard, editCard } = useContext(context);
+  const { user, title: titleProps, id } = card;
   const { name } = user;
-  
 
-  const handleClick = () => {
-    removeCard(card);
+  const [showSubContainer, setShowSubContainer] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
+  const [title, setTitle] = useState(titleProps);
+  const classes = useStyle();
+
+  const handleClick = (type: string) => {
+    if (type === "remove") removeCard(card);
+    else setIsEditable(true);
   };
+
+  const handleOnInputChange = (e: any): void => {
+    setTitle(e.target.value);
+  };
+
+  const onSave = () => {
+    const modifiedCard = {
+      id: id,
+      title: title,
+      user: user,
+    };
+    editCard(modifiedCard);
+    setIsEditable(false);
+  };
+
   return (
     <Draggable draggableId={id} index={index}>
       {(provided) => (
@@ -38,10 +57,30 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
           {...provided.dragHandleProps}
           {...provided.draggableProps}
         >
-          <Paper className={classes.card}>
-            <Typography>{title}</Typography>
+          <Paper
+            onMouseEnter={() => setShowSubContainer(true)}
+            onMouseLeave={() => setShowSubContainer(false)}
+            className={classes.card}
+          >
+            {isEditable ? (
+              <InputBase
+                onChange={handleOnInputChange}
+                multiline
+                fullWidth
+                value={title}
+              />
+            ) : (
+              <Typography>{title}</Typography>
+            )}
+
             <Typography>{name ? name.first : ""}</Typography>
-            <Delete onClick={handleClick} />
+            {showSubContainer && !isEditable && (
+              <div>
+                <Edit onClick={() => handleClick("edit")} />
+                <Delete onClick={() => handleClick("remove")} />
+              </div>
+            )}
+            {isEditable && <Check color="secondary" onClick={onSave} />}
           </Paper>
         </div>
       )}

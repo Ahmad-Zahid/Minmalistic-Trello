@@ -7,5 +7,10 @@ export const useStyle = makeStyles((theme) => ({
       display: "flex",
       justifyContent: "space-between",
     },
+    icons:{
+      '&:hover': {
+        background: "#f00",
+     },
+    }
   }));
   

@@ -99,6 +99,7 @@ export default function InputCard({
               styles={styles}
               onChange={handleChangeDropdown}
               name="color"
+              placeholder="Select User"
               options={names}
             />
           </FormControl>
