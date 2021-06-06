@@ -80,7 +80,6 @@ export default function InputCard({
           <InputBase
             onChange={handleOnInputChange}
             multiline
-            onBlur={() => setOpen(false)}
             fullWidth
             inputProps={{
               className: classes.input,

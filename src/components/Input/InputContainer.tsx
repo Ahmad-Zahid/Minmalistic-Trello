@@ -17,6 +17,7 @@ export default function InputContainer({
 }: InputContainerProps): ReactElement {
   const classes = useInputContainerStyle();
   const [open, setOpen] = useState<boolean>(false);
+  
   return (
     <div className={classes.root}>
       <Collapse in={open}>

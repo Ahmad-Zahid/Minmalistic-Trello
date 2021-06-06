@@ -25,7 +25,7 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
   const { removeCard } = useContext(context);
   const { user, title, id } = card;
   const { name } = user;
-  const { first: firstName } = name;
+  
 
   const handleClick = () => {
     removeCard(card);
@@ -40,7 +40,7 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
         >
           <Paper className={classes.card}>
             <Typography>{title}</Typography>
-            <Typography>{name ? firstName : ""}</Typography>
+            <Typography>{name ? name.first : ""}</Typography>
             <Delete onClick={handleClick} />
           </Paper>
         </div>
