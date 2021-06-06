@@ -1,10 +1,15 @@
+// Packages
 import { createStore, compose, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+
+// Reducers
 import rootReducer from './reducers';
+
+// Sagas
 import rootSaga from './sagas';
 
 declare global {
-    interface Window {
+   interface Window {
       __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
     }
 }

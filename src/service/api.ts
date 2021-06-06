@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const BASE_URL = "https://randomuser.me/api"
+const { REACT_APP_API_URL } = process.env
 
 const API = axios.create({
-  baseURL: BASE_URL,
+  baseURL: REACT_APP_API_URL,
   responseType: 'json',
 });
 
