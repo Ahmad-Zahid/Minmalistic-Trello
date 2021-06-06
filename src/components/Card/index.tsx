@@ -21,7 +21,7 @@ interface CardProps {
   index: number;
 }
 export default function Card({ card, index }: CardProps): ReactElement {
-  const { removeCard, editCard } = useContext(context);
+  const { editOrRemoveCard } = useContext(context);
   const { user, title: titleProps, id } = card;
   const { name } = user;
 
@@ -31,7 +31,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
   const classes = useStyle();
 
   const handleClick = (type: string) => {
-    if (type === "remove") removeCard(card);
+    if (type === "remove") editOrRemoveCard(card,'remove');
     else setIsEditable(true);
   };
 
@@ -45,7 +45,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
       title: title,
       user: user,
     };
-    editCard(modifiedCard);
+    editOrRemoveCard(modifiedCard,'edit');
     setIsEditable(false);
   };
 

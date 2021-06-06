@@ -63,26 +63,17 @@ export default function Board(): ReactElement {
     };
     setData(newState);
   };
-  const removeCard = (card: any) => {
-    const temp = { ...data };
-    for (const item in data.lists) {
-      for (const listItem in data.lists[item]) {
-        const deleteIndex = data.lists[item].cards.findIndex(
-          (itemx) => itemx.id === card.id
-        );
-        if (deleteIndex > -1) temp.lists[item].cards.splice(deleteIndex, 1);
-      }
-    }
-    setData(temp);
-  };
-  const editCard = (card: any) => {
+
+  const editOrRemoveCard = (card: any, type: string) => {
     const temp = { ...data };
     for (const currentList in data.lists) {
       for (const listItem in data.lists[currentList]) {
         const cardIndex = data.lists[currentList].cards.findIndex(
           (itemx) => itemx.id === card.id
         );
-         temp.lists[currentList].cards[cardIndex]= card
+        if (type === "edit") temp.lists[currentList].cards[cardIndex] = card;
+        else if (cardIndex > -1)
+          temp.lists[currentList].cards.splice(cardIndex, 1);
       }
     }
     setData(temp);
@@ -205,7 +196,7 @@ export default function Board(): ReactElement {
   };
 
   return (
-    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard,editCard }}>
+    <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
       <div
         className={classes.root}
         style={{ backgroundColor: preferences.color }}
