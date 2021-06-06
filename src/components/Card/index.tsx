@@ -1,36 +1,37 @@
+// Packages
 import React, { useContext } from "react";
 import { Paper, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { Draggable } from "react-beautiful-dnd";
 import { Delete } from "@material-ui/icons";
-import storeApi from "../../utils/context";
 
-const useStyle = makeStyles((theme) => ({
-  card: {
-    padding: theme.spacing(2, 2, 2, 2),
-    margin: theme.spacing(2),
-    display: "flex",
-    justifyContent: "space-between",
-  },
-}));
+// Utils
+import context from "../../utils/context";
 
+// Types
+import { UserType } from "../../constants/types";
+
+// Stylesheet
+import { useStyle } from "./styles";
 interface CardProps {
   card: {
     id: string;
     title: string;
-    user: any;
+    user: UserType;
   };
   index: number;
 }
 export default function Card({ card, index }: CardProps): React.ReactElement {
   const classes = useStyle();
-  const { removeCard } = useContext(storeApi);
+  const { removeCard } = useContext(context);
+  const { user, title, id } = card;
+  const { name } = user;
+  const { first: firstName } = name;
 
   const handleClick = () => {
     removeCard(card);
   };
   return (
-    <Draggable draggableId={card.id} index={index}>
+    <Draggable draggableId={id} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -38,10 +39,8 @@ export default function Card({ card, index }: CardProps): React.ReactElement {
           {...provided.draggableProps}
         >
           <Paper className={classes.card}>
-            <Typography>{card.title}</Typography>
-            <Typography>
-              {card.user.name ? card.user.name.first : ""}
-            </Typography>
+            <Typography>{title}</Typography>
+            <Typography>{name ? firstName : ""}</Typography>
             <Delete onClick={handleClick} />
           </Paper>
         </div>

@@ -1,7 +1,6 @@
 // Packages
 import { useState, ReactElement } from "react";
 import { Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { CirclePicker } from "react-color";
@@ -13,29 +12,8 @@ import { useAuth } from "../../routes";
 // Constants
 import { routes } from "../../constants/routes";
 
-const useStyle = makeStyles(() => ({
-  container: {
-    display: "flex",
-    width: "100vw",
-    height: "100vh",
-    background: "lightblue",
-    alignItems: "center",
-    flexDirection: "column",
-  },
-  body: {
-    display: "flex",
-    width: "100vw",
-    height: "50vh",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  input: {
-    width: "20vw",
-    marginBottom: 10,
-    textDecorationLine: "none",
-  },
-}));
+// Stylesheet
+import { useStyle } from "./styles";
 
 export default function Welcome(): ReactElement {
   const [currentColor, setCurrentColor] = useState("#000");

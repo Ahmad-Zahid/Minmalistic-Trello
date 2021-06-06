@@ -1,7 +1,6 @@
 // Packages
 import { useState, useEffect, ReactElement } from "react";
 import { v4 as uuid } from "uuid";
-import { makeStyles } from "@material-ui/core/styles";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useDispatch } from "react-redux";
 
@@ -19,24 +18,8 @@ import StoreApi from "../../utils/context";
 // Actions
 import { getUsers } from "../../store/users/actions";
 
-const useStyle = makeStyles((theme) => ({
-  root: {
-    minHeight: "100vh",
-    background: "green",
-    width: "100%",
-    overflowY: "auto",
-  },
-  listContainer: {
-    display: "flex",
-    [theme.breakpoints.down("xs")]: {
-      flexDirection: "column",
-    },
-  },
-  my: {
-    display: "flex",
-    columns: 4,
-  },
-}));
+// Stylesheet
+import { useStyle } from "./styles";
 
 export default function Board(): ReactElement {
   let localData = localStorage.getItem("user");

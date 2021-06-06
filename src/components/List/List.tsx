@@ -1,7 +1,6 @@
 // Packages
 import { ReactElement } from "react";
 import { Paper, CssBaseline } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 
 // Components
@@ -9,18 +8,8 @@ import Title from "./Title";
 import Card from "../Card";
 import InputContainer from "../Input/InputContainer";
 
-const useStyle = makeStyles((theme) => ({
-  root: {
-    backgroundColor: "#EBECF0",
-    marginLeft: theme.spacing(1),
-    [theme.breakpoints.down("xs")]: {
-      marginRight: theme.spacing(1),
-    },
-  },
-  cardContainer: {
-    marginTop: theme.spacing(4),
-  },
-}));
+// Stylesheet
+import {useListStyle} from './styles'
 
 interface ListProps {
   list: {
@@ -31,23 +20,24 @@ interface ListProps {
   index: number;
 }
 export default function List({ list, index }: ListProps): ReactElement {
-  const classes = useStyle();
+  const classes = useListStyle();
+  const { title, id, cards } = list;
   return (
-    <Draggable draggableId={list.id} index={index}>
+    <Draggable draggableId={id} index={index}>
       {(provided) => (
         <div key={index}>
           <Paper className={classes.root} {...provided.dragHandleProps}>
             <CssBaseline />
-            <Title title={list.title} />
+            <Title title={title} />
             <div {...provided.draggableProps} ref={provided.innerRef}>
-              <Droppable droppableId={list.id}>
+              <Droppable droppableId={id}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={classes.cardContainer}
                   >
-                    {list.cards.map((card, index) => (
+                    {cards.map((card, index) => (
                       <Card key={card.id} card={card} index={index} />
                     ))}
                     {provided.placeholder}
@@ -55,7 +45,7 @@ export default function List({ list, index }: ListProps): ReactElement {
                 )}
               </Droppable>
             </div>
-            <InputContainer listId={list.id} type="card" />
+            <InputContainer listId={id} type="card" />
           </Paper>
         </div>
       )}
