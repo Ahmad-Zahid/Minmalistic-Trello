@@ -1,11 +1,11 @@
-import { GET_USERS_SUCCESS ,GET_USERS} from "./actionTypes";
+import { GET_USERS_SUCCESS, GET_USERS } from "./actionTypes";
 
 const initialState = {
     users: []
 };
-
 interface types {
-    type: string, payload: any
+    type: string,
+    payload: any
 }
 
 const userReducer = (state = initialState, { type, payload }: types) => {
