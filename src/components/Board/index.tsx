@@ -30,6 +30,8 @@ export default function Board(): ReactElement {
 
   const dispatch = useDispatch();
   const [data, setData] = useState<types>(persistedData);
+  const [currentlyDragged, setCurrentlyDragged] = useState('');
+  const [moving, setMoving] = useState(false);
   const preferences: any = localData;
   const classes = useStyle();
 
@@ -50,6 +52,7 @@ export default function Board(): ReactElement {
       id: newCardId,
       title,
       user: user,
+      restricted: [],
     };
 
     const list = data.lists[listId];
@@ -86,6 +89,7 @@ export default function Board(): ReactElement {
       title,
       cards: [],
       user: {},
+      restricted: [],
     };
     const newState = {
       listIds: [...data.listIds, newListId],
@@ -97,61 +101,16 @@ export default function Board(): ReactElement {
     setData(newState);
   };
 
-  const validations = (source: string, destination: any) => {
-    switch (source) {
-      case "list-1":
-        if (
-          destination === "list-3" ||
-          destination === "list-4" ||
-          destination === "list-5" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-2":
-        if (
-          destination === "list-5" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-3":
-        if (destination === "list-6" || destination === "list-7") return false;
-        return true;
-      case "list-4":
-        if (
-          destination === "list-3" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-5":
-        if (
-          destination === "list-3" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-6":
-        if (
-          destination === "list-2" ||
-          destination === "list-4" ||
-          destination === "list-5"
-        )
-          return false;
-
-        return true;
-      case "list-7":
-        return false;
-    }
+  const valitdate = (source: string, destination: any) => {
+    if (data.lists[source].restricted.includes(destination)) return false;
+    return true;
   };
+
   const onDragEnd = (result: DropResult): undefined | void => {
+    setCurrentlyDragged('')
+
     const { destination, source, draggableId, type } = result;
-    if (!validations(source.droppableId, destination?.droppableId)) return;
+    if (!valitdate(source.droppableId, destination?.droppableId)) return;
     if (!destination) {
       return;
     }
@@ -194,7 +153,10 @@ export default function Board(): ReactElement {
       setData(newState);
     }
   };
-
+  const onDragStart = (result: any) => {
+    setCurrentlyDragged(result.source.droppableId)
+    setMoving(!moving)
+  };
   return (
     <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
       <div
@@ -202,7 +164,7 @@ export default function Board(): ReactElement {
         style={{ backgroundColor: preferences.color }}
       >
         <TopBar title={preferences.boardTitle} />
-        <DragDropContext onDragEnd={onDragEnd}>
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (
               <div
@@ -212,7 +174,15 @@ export default function Board(): ReactElement {
               >
                 {data.listIds.map((listId, index) => {
                   const list = data.lists[listId];
-                  return <List list={list} key={listId} index={index} />;
+                  return (
+                    <List
+                      list={list}
+                      index={index}
+                      currentlyDragged={currentlyDragged}
+                      allLists={data.lists}
+                      moving={moving}
+                    />
+                  );
                 })}
                 <InputContainer type="list" listId={"x"} />
                 {provided.placeholder}

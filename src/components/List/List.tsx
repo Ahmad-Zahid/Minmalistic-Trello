@@ -1,5 +1,5 @@
 // Packages
-import { ReactElement, lazy, Suspense } from "react";
+import { ReactElement, lazy, Suspense, useEffect } from "react";
 import { Paper, CssBaseline } from "@material-ui/core";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 
@@ -18,23 +18,48 @@ interface ListProps {
     cards: Array<any>;
   };
   index: number;
+  currentlyDragged: string;
+  allLists: any;
+  moving: any;
 }
-export default function List({ list, index }: ListProps): ReactElement {
+export default function List({
+  list,
+  index,
+  currentlyDragged,
+  allLists,
+  moving,
+}: ListProps): ReactElement {
   const classes = useListStyle();
   const { title, id, cards } = list;
 
+  const isDropabble = () => {
+    if (currentlyDragged !== "")
+      if (allLists[currentlyDragged].restricted.includes(list.id)) return true;
+    return false;
+  };
+  useEffect(() => {
+    isDropabble();
+  }, [moving]);
+
   const loading = () => <div>Loading...</div>;
+
   return (
-    <Draggable draggableId={id} index={index}>
-      {(provided) => (
-        <div key={index}>
-          <Paper className={classes.root} {...provided.dragHandleProps}>
-            <CssBaseline />
-            <Suspense fallback={loading}>
-              <Title title={title} />
-            </Suspense>
-            <div {...provided.draggableProps} ref={provided.innerRef}>
-              <Droppable droppableId={id}>
+    <div key={index}>
+      <Paper className={classes.root}
+      style={isDropabble() ? { backgroundColor: "lightgray" } : {}}
+      >
+        <CssBaseline />
+        <Suspense fallback={loading}>
+          <Title title={title} />
+        </Suspense>
+        <Draggable draggableId={id} index={index}>
+          {(provided) => (
+            <div
+              {...provided.draggableProps}
+              
+              ref={provided.innerRef}
+            >
+              <Droppable isDropDisabled={isDropabble()} droppableId={id}>
                 {(provided) => (
                   <div
                     ref={provided.innerRef}
@@ -51,12 +76,13 @@ export default function List({ list, index }: ListProps): ReactElement {
                 )}
               </Droppable>
             </div>
-            <Suspense fallback={loading}>
-              <InputContainer listId={id} type="card" />
-            </Suspense>
-          </Paper>
-        </div>
-      )}
-    </Draggable>
+          )}
+        </Draggable>
+
+        <Suspense fallback={loading}>
+          <InputContainer listId={id} type="card" />
+        </Suspense>
+      </Paper>
+    </div>
   );
 }
