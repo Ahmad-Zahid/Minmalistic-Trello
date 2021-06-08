@@ -14,7 +14,8 @@ interface DropdownProps {
   styles?: any;
   handleChangeDropdown: (e: any) => void;
   placeholder: string;
-  value?:any
+  value?: any;
+  withAll?: any;
 }
 
 export default function Dropdown({
@@ -22,14 +23,15 @@ export default function Dropdown({
   styles,
   handleChangeDropdown,
   placeholder,
-  value
+  value,
+  withAll,
 }: DropdownProps): ReactElement {
   const classes = useInputCardStyle();
   const users = useSelector((state: any) => state.users.users);
   const names = users
     ? useMemo(
         () =>
-          users.map((item: UserType) => {
+          users.map((item: UserType, index: number) => {
             const { name } = item;
             const { first: firstName, last: lastName } = name;
             return {
@@ -40,7 +42,9 @@ export default function Dropdown({
         [users]
       )
     : [];
-
+  if (withAll && names.length > 0) {
+    if (names[0].value !== "All") names.unshift({ label: "All", value: "All" });
+  }
   return (
     <Select
       styles={styles}
@@ -49,6 +53,7 @@ export default function Dropdown({
       options={options || names}
       className={classes.formControl}
       value={value}
+      defaultValue={names[0]}
     />
   );
 }

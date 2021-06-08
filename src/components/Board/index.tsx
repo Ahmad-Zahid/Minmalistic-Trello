@@ -53,18 +53,24 @@ export default function Board(): ReactElement {
     let search: any = location.search;
     setTempData(persistedData);
 
-    if (search === "") return;
+    if (search === "") {
+      setDropdownValue({ label: "All", value: "All" });
+      return;
+    }
+   
     search = decodeURIComponent(search);
     search = search.split("=");
     search = search[1].split("-").join(" ");
+    
     setDropdownValue({ label: search, value: search });
+    if(search === "All"){
+      return
+    }
     const filtered = JSON.parse(JSON.stringify(data));
-    const cardsIncluded: any = [];
     for (const key in data.lists) {
       filtered.lists[key].cards = [];
       data.lists[key].cards.map((card: any) => {
         if (card.user === search) {
-          cardsIncluded.push(card);
           filtered.lists[key].cards.push(card);
         }
       });
@@ -205,6 +211,7 @@ export default function Board(): ReactElement {
           handleChangeDropdown={handleChangeDropdown}
           placeholder={"All Users"}
           value={dropdownValue}
+          withAll
         />
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
