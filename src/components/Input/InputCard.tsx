@@ -1,11 +1,10 @@
 // Packages
-import React, { useState, useContext, useMemo } from "react";
+import React, { useState, useContext } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
 import { Clear } from "@material-ui/icons";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "react-select";
-import { useSelector } from "react-redux";
+
+// Components
+import Dropdown from "../Dropdown/Dropdown";
 
 // Utils
 import storeApi from "../../utils/context";
@@ -31,7 +30,6 @@ export default function InputCard({
   type,
 }: InputCardProps): React.ReactElement {
   const classes = useInputCardStyle();
-  const users = useSelector((state: any) => state.users.users);
   const { addMoreCard, addMoreList } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<UserType | string>("");
@@ -42,18 +40,7 @@ export default function InputCard({
   const handleOnInputChange = (e: any): void => {
     setTitle(e.target.value);
   };
-  const names = useMemo(
-    () =>
-      users.map((item: UserType) => {
-        const { name } = item;
-        const { first: firstName, last: lastName } = name;
-        return {
-          label: firstName + " " + lastName,
-          value: firstName + " " + lastName,
-        };
-      }),
-    [users]
-  );
+ 
 
   const handleBtnConfirm = (): void => {
     if (type === "card") {
@@ -93,16 +80,11 @@ export default function InputCard({
           />
         </Paper>
         {type === "card" && (
-          <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="age-native-simple">Select Member</InputLabel>
-            <Select
-              styles={styles}
-              onChange={handleChangeDropdown}
-              name="color"
-              placeholder="Select User"
-              options={names}
-            />
-          </FormControl>
+          <Dropdown
+            styles={styles}
+            handleChangeDropdown={handleChangeDropdown}
+            placeholder={"Select User"}
+          />
         )}
       </div>
       <div className={classes.confirm}>

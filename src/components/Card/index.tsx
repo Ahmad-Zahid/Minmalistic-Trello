@@ -23,15 +23,13 @@ interface CardProps {
 export default function Card({ card, index }: CardProps): ReactElement {
   const { editOrRemoveCard } = useContext(context);
   const { user, title: titleProps, id } = card;
-  const { name } = user;
-
   const [showSubContainer, setShowSubContainer] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [title, setTitle] = useState(titleProps);
   const classes = useStyle();
 
   const handleClick = (type: string) => {
-    if (type === "remove") editOrRemoveCard(card,'remove');
+    if (type === "remove") editOrRemoveCard(card, "remove");
     else setIsEditable(true);
   };
 
@@ -45,7 +43,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
       title: title,
       user: user,
     };
-    editOrRemoveCard(modifiedCard,'edit');
+    editOrRemoveCard(modifiedCard, "edit");
     setIsEditable(false);
   };
 
@@ -62,18 +60,19 @@ export default function Card({ card, index }: CardProps): ReactElement {
             onMouseLeave={() => setShowSubContainer(false)}
             className={classes.card}
           >
-            {isEditable ? (
-              <InputBase
-                onChange={handleOnInputChange}
-                multiline
-                fullWidth
-                value={title}
-              />
-            ) : (
-              <Typography>{title}</Typography>
-            )}
-
-            <Typography>{name ? name.first : ""}</Typography>
+            <div style={{ flexDirection: "column" }}>
+              {isEditable ? (
+                <InputBase
+                  onChange={handleOnInputChange}
+                  multiline
+                  fullWidth
+                  value={title}
+                />
+              ) : (
+                <Typography>{title}</Typography>
+              )}
+              <Typography variant="subtitle2">{user ? user : ""}</Typography>
+            </div>
             {showSubContainer && !isEditable && (
               <div>
                 <Edit onClick={() => handleClick("edit")} />

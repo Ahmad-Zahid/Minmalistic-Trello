@@ -3,7 +3,7 @@ export interface types {
     [key: string]: {
       id: string,
       title: string,
-      cards: Array<any>,
+      cards: any,
       restricted: Array<string>
     }
   },

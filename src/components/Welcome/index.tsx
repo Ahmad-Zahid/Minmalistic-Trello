@@ -5,6 +5,10 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { CirclePicker } from "react-color";
 import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+// Actions
+import { getUsers } from "../../store/users/actions";
 
 // Navigation
 import { useAuth } from "../../routes";
@@ -22,6 +26,7 @@ export default function Welcome(): ReactElement {
   const history = useHistory();
   const auth: any = useAuth();
   const classes: any = useStyle();
+  const dispatch = useDispatch();
 
   const handleColorChange = ({ hex }: { hex: any }) => {
     setCurrentColor(hex);
@@ -38,6 +43,7 @@ export default function Welcome(): ReactElement {
       color: currentColor,
     };
     auth.signin(user, () => {
+      dispatch(getUsers());
       history.replace({
         pathname: routes.board,
       });

@@ -3,23 +3,27 @@ import { useState, useEffect, ReactElement } from "react";
 import { v4 as uuid } from "uuid";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router";
 
 // Components
 import TopBar from "../Header/TopBar";
 import List from "../../components/List/List";
 import InputContainer from "../../components/Input/InputContainer";
+import Dropdown from "../Dropdown/Dropdown";
 
 // Constants
 import constantData, { types } from "../../constants/listsData";
 
 // Utils
 import StoreApi from "../../utils/context";
+import { validate } from "../../utils/helpers";
 
 // Actions
-import { getUsers } from "../../store/users/actions";
+import { getLocalUsers } from "../../store/users/actions";
 
 // Stylesheet
 import { useStyle } from "./styles";
+import { routes } from "../../constants/routes";
 
 export default function Board(): ReactElement {
   let localData = localStorage.getItem("user");
@@ -30,17 +34,43 @@ export default function Board(): ReactElement {
 
   const dispatch = useDispatch();
   const [data, setData] = useState<types>(persistedData);
-  const [currentlyDragged, setCurrentlyDragged] = useState('');
+  const [tempData, setTempData] = useState<types>(persistedData);
+  const [dropdownValue, setDropdownValue] = useState<any>();
+  const [currentlyDragged, setCurrentlyDragged] = useState("");
   const [moving, setMoving] = useState(false);
   const preferences: any = localData;
   const classes = useStyle();
+  const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
-      dispatch(getUsers());
+      dispatch(getLocalUsers());
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    let search: any = location.search;
+    setTempData(persistedData);
+
+    if (search === "") return;
+    search = decodeURIComponent(search);
+    search = search.split("=");
+    search = search[1].split("-").join(" ");
+    setDropdownValue({ label: search, value: search });
+    const filtered = JSON.parse(JSON.stringify(data));
+    const cardsIncluded: any = [];
+    for (const key in data.lists) {
+      filtered.lists[key].cards = [];
+      data.lists[key].cards.map((card: any) => {
+        if (card.user === search) {
+          cardsIncluded.push(card);
+          filtered.lists[key].cards.push(card);
+        }
+      });
+    }
+    setTempData(filtered);
+  }, [location]);
 
   useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data));
@@ -72,7 +102,7 @@ export default function Board(): ReactElement {
     for (const currentList in data.lists) {
       for (const listItem in data.lists[currentList]) {
         const cardIndex = data.lists[currentList].cards.findIndex(
-          (itemx) => itemx.id === card.id
+          (itemx: any) => itemx.id === card.id
         );
         if (type === "edit") temp.lists[currentList].cards[cardIndex] = card;
         else if (cardIndex > -1)
@@ -101,16 +131,11 @@ export default function Board(): ReactElement {
     setData(newState);
   };
 
-  const valitdate = (source: string, destination: any) => {
-    if (data.lists[source].restricted.includes(destination)) return false;
-    return true;
-  };
-
   const onDragEnd = (result: DropResult): undefined | void => {
-    setCurrentlyDragged('')
+    setCurrentlyDragged("");
 
     const { destination, source, draggableId, type } = result;
-    if (!valitdate(source.droppableId, destination?.droppableId)) return;
+    if (!validate(source.droppableId, destination?.droppableId, data)) return;
     if (!destination) {
       return;
     }
@@ -154,8 +179,19 @@ export default function Board(): ReactElement {
     }
   };
   const onDragStart = (result: any) => {
-    setCurrentlyDragged(result.source.droppableId)
-    setMoving(!moving)
+    setCurrentlyDragged(result.source.droppableId);
+    setMoving(!moving);
+  };
+  const styles = {
+    container: (css: any) => ({ ...css, width: "200px" }),
+  };
+  const handleChangeDropdown = (selected: any) => {
+    const queryParam = encodeURIComponent(selected.value.split(" ").join("-"));
+
+    history.push({
+      pathname: routes.board,
+      search: `?assignee=${queryParam}`,
+    });
   };
   return (
     <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
@@ -164,6 +200,12 @@ export default function Board(): ReactElement {
         style={{ backgroundColor: preferences.color }}
       >
         <TopBar title={preferences.boardTitle} />
+        <Dropdown
+          styles={styles}
+          handleChangeDropdown={handleChangeDropdown}
+          placeholder={"All Users"}
+          value={dropdownValue}
+        />
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (
@@ -172,14 +214,14 @@ export default function Board(): ReactElement {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {data.listIds.map((listId, index) => {
-                  const list = data.lists[listId];
+                {tempData.listIds.map((listId, index) => {
+                  const list = tempData.lists[listId];
                   return (
                     <List
                       list={list}
                       index={index}
                       currentlyDragged={currentlyDragged}
-                      allLists={data.lists}
+                      allLists={tempData.lists}
                       moving={moving}
                     />
                   );
