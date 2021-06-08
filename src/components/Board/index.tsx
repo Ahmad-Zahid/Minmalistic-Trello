@@ -57,14 +57,14 @@ export default function Board(): ReactElement {
       setDropdownValue({ label: "All", value: "All" });
       return;
     }
-   
+
     search = decodeURIComponent(search);
     search = search.split("=");
     search = search[1].split("-").join(" ");
-    
+
     setDropdownValue({ label: search, value: search });
-    if(search === "All"){
-      return
+    if (search === "All") {
+      return;
     }
     const filtered = JSON.parse(JSON.stringify(data));
     for (const key in data.lists) {
@@ -101,6 +101,8 @@ export default function Board(): ReactElement {
       },
     };
     setData(newState);
+    setTempData(newState)
+
   };
 
   const editOrRemoveCard = (card: any, type: string) => {
@@ -116,6 +118,7 @@ export default function Board(): ReactElement {
       }
     }
     setData(temp);
+    setTempData(temp)
   };
 
   const addMoreList = (title: string) => {

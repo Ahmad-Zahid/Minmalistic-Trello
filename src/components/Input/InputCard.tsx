@@ -2,6 +2,7 @@
 import React, { useState, useContext } from "react";
 import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
 import { Clear } from "@material-ui/icons";
+import Slider from "@material-ui/core/Slider";
 
 // Components
 import Dropdown from "../Dropdown/Dropdown";
@@ -40,7 +41,6 @@ export default function InputCard({
   const handleOnInputChange = (e: any): void => {
     setTitle(e.target.value);
   };
- 
 
   const handleBtnConfirm = (): void => {
     if (type === "card") {
@@ -59,7 +59,35 @@ export default function InputCard({
     if (type === "card" && user === "") return true;
     return false;
   };
+  const marks = [
+    {
+      value: 1,
+      label: "1",
+    },
+    {
+      value: 3,
+      label: "3",
+    },
+    {
+      value: 5,
+      label: "5",
+    },
+    {
+      value: 8,
+      label: "8",
+    },
+    {
+      value: 12,
+      label: "12",
+    },
+  ];
 
+  function valuetext(value: any) {
+    return `${value}`;
+  }
+  const onChangeSlider =(event: any, value: number | number[])=>{
+    console.log('slider value',value)
+  }
   return (
     <div>
       <div>
@@ -86,6 +114,18 @@ export default function InputCard({
             placeholder={"Select User"}
           />
         )}
+       { 
+       <div style={{marginLeft:'15px'}}>
+        Choose story points
+       <Slider
+          getAriaValueText={valuetext}
+          step={null}
+          style={{width:'200px',}}
+          valueLabelDisplay="auto"
+          marks={marks}
+          max={12}
+          onChangeCommitted={onChangeSlider}
+        /></div>}
       </div>
       <div className={classes.confirm}>
         <Button
@@ -95,9 +135,12 @@ export default function InputCard({
         >
           {type === "card" ? "Add Card" : "Add List"}
         </Button>
-        <IconButton onClick={() => setOpen(false)}>
-          <Clear />
-        </IconButton>
+        <Button
+          className={classes.btnCancel}
+          onClick={() => setOpen(false)}
+        >
+          Cancel
+        </Button>
       </div>
     </div>
   );

@@ -16,6 +16,11 @@ export const useInputCardStyle = makeStyles((theme) => ({
             background: fade("#5AAC44", 0.75),
         },
     },
+    btnCancel: {
+        background: "red",
+        color: "#fff",
+        marginLeft:'5px'
+    },
     confirm: {
         margin: theme.spacing(0, 1, 1, 1),
     },
