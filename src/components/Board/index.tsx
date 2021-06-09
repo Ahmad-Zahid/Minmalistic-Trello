@@ -28,6 +28,7 @@ import { routes } from "../../constants/routes";
 
 // Types
 import { DropdownType, PerferencesType, CardType } from "../../constants/types";
+import { Typography } from "@material-ui/core";
 
 const styles = {
   container: (css: any) => ({ ...css, width: "200px" }),
@@ -55,10 +56,12 @@ export default function Board(): ReactElement {
   const [moving, setMoving] = useState(false);
   const preferences: PerferencesType = preferencesData;
   const queryParams = new URLSearchParams(searchParam);
-  const storyPoints = storypoints.unshift({
-    value: "All",
-    label: "All Storypoints",
-  });
+  const storyPoints = [...storypoints];
+  if (storyPoints[0].value !== "All")
+    storyPoints.unshift({
+      value: "All",
+      label: "All Storypoints",
+    });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +76,7 @@ export default function Board(): ReactElement {
     const searchParams = new URLSearchParams(searchParam);
     let assignee = searchParams.get("assignee");
     const storypoints = searchParams.get("storypoints");
-    if (assignee) assignee = assignee.split("-").join(" ");
+    if (assignee) assignee = decodeURIComponent(assignee.split("-").join(" "));
 
     setspDropdownValue({
       label: storypoints ? storypoints : "All storypoints",
@@ -179,6 +182,7 @@ export default function Board(): ReactElement {
       },
     };
     setData(newState);
+    setfilteredData(newState);
   };
 
   const onDragEnd = (result: DropResult): undefined | void => {
@@ -213,6 +217,7 @@ export default function Board(): ReactElement {
         },
       };
       setData(newSate);
+      setfilteredData(newSate);
     } else {
       sourceList.cards.splice(source.index, 1);
       destinationList.cards.splice(destination.index, 0, draggingCard);
@@ -226,6 +231,7 @@ export default function Board(): ReactElement {
         },
       };
       setData(newState);
+      setfilteredData(newState);
     }
   };
 
@@ -234,25 +240,15 @@ export default function Board(): ReactElement {
     setMoving(!moving);
   };
 
-  const handleChangeDropdown = (selected: { [key: string]: string }) => {
+  const handleChangeDropdown = (selected: { [key: string]: string }, type: string) => {
     const { value } = selected;
-    const query = encodeURIComponent(selected.value.split(" ").join("-"));
+    let query = "";
+    
+    if (query) query = encodeURIComponent(value.split(" ").join("-"));
+    else query = encodeURIComponent(value);
 
-    if (value === "All") queryParams.delete("assignee");
-    else queryParams.set("assignee", query);
-
-    history.push({
-      pathname: routes.board,
-      search: queryParams.toString(),
-    });
-  };
-
-  const handleChangeDropdownSP = (selected: { [key: string]: string }) => {
-    const { value } = selected;
-    const query = encodeURIComponent(value);
-
-    if (value === "All") queryParams.delete("storypoints");
-    else queryParams.set("storypoints", query);
+    if (value === "All") queryParams.delete(type);
+    else queryParams.set(type, query);
 
     history.push({
       pathname: routes.board,
@@ -263,17 +259,21 @@ export default function Board(): ReactElement {
   const Filters = () => {
     return (
       <div className={classes.row}>
-        <text className={classes.filterTitle}>Filters</text>
+        <Typography className={classes.filterTitle}>Filters</Typography>
         <Dropdown
           styles={styles}
-          handleChangeDropdown={handleChangeDropdown}
+          handleChangeDropdown={(selected) =>
+            handleChangeDropdown(selected, "assignee")
+          }
           placeholder={"All Users"}
           value={dropdownValue}
           withAll
         />
         <Dropdown
           styles={styles}
-          handleChangeDropdown={handleChangeDropdownSP}
+          handleChangeDropdown={(selected) =>
+            handleChangeDropdown(selected, "storypoints")
+          }
           placeholder={"All Storypoints"}
           value={spDropdownValue}
           options={storyPoints}

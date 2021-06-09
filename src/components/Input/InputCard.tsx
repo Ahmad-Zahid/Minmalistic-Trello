@@ -11,7 +11,7 @@ import storeApi from "../../utils/context";
 
 // Constants
 import { UserType } from "../../constants/types";
-import {storypoints} from '../../constants/slider'
+import { storypoints } from "../../constants/slider";
 
 // Stylesheet
 import { useInputCardStyle } from "./styles";

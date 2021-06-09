@@ -70,7 +70,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
               <div className={classes.rowContainer}>
                 <Typography variant="subtitle2">{user ? user : ""}</Typography>
                 <div className={classes.storypointContainer}>
-                  <text>{storypoints}</text>
+                  <Typography>{storypoints}</Typography>
                 </div>
               </div>
             </div>
