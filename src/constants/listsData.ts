@@ -1,9 +1,11 @@
+import { CardType } from "./types";
+
 export interface types {
   lists: {
     [key: string]: {
       id: string,
       title: string,
-      cards: any,
+      cards: CardType[],
       restricted: Array<string>
     }
   },
@@ -16,7 +18,8 @@ const data: types = {
       id: 'list-1',
       title: 'TO DO',
       cards: [],
-      restricted: ['list-3', 'list-4', 'list-5', 'list-6', 'list-7']
+      restricted: ['list-3', 'list-4', 'list-5', 'list-6', 'list-7'],
+
     },
     'list-2': {
       id: 'list-2',

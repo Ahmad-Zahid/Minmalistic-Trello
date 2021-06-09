@@ -8,21 +8,17 @@ import { Check, Delete, Edit } from "@material-ui/icons";
 import context from "../../utils/context";
 
 // Types
-import { UserType } from "../../constants/types";
+import { CardType } from "../../constants/types";
 
 // Stylesheet
 import { useStyle } from "./styles";
 interface CardProps {
-  card: {
-    id: string;
-    title: string;
-    user: UserType;
-  };
+  card: CardType;
   index: number;
 }
 export default function Card({ card, index }: CardProps): ReactElement {
   const { editOrRemoveCard } = useContext(context);
-  const { user, title: titleProps, id } = card;
+  const { user, title: titleProps, id ,storypoints} = card;
   const [showSubContainer, setShowSubContainer] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [title, setTitle] = useState(titleProps);
@@ -33,7 +29,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
     else setIsEditable(true);
   };
 
-  const handleOnInputChange = (e: any): void => {
+  const handleOnInputChange = (e: { target: { value: string } }): void => {
     setTitle(e.target.value);
   };
 
@@ -48,7 +44,7 @@ export default function Card({ card, index }: CardProps): ReactElement {
   };
 
   return (
-    <Draggable draggableId={id} index={index}>
+    <Draggable draggableId={id.toString()} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -71,7 +67,10 @@ export default function Card({ card, index }: CardProps): ReactElement {
               ) : (
                 <Typography>{title}</Typography>
               )}
+              <div style={{display:'flex' ,flexDirection:'row'}}>
               <Typography variant="subtitle2">{user ? user : ""}</Typography>
+              <Typography variant="subtitle2">{storypoints}</Typography>
+              </div>
             </div>
             {showSubContainer && !isEditable && (
               <div>

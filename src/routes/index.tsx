@@ -1,4 +1,5 @@
 import { useContext, createContext, useState, ReactElement } from "react";
+import { PerferencesType } from "../constants/types";
 
 const fakeAuth = {
   isAuthenticated: false,
@@ -28,7 +29,7 @@ function useProvideAuth() {
   if (localData) localData = JSON.parse(localData);
   const [user, setUser] = useState<any>(localData);
 
-  const signin = (userPreferences: any, cb: () => void) => {
+  const signin = (userPreferences: PerferencesType, cb: () => void) => {
     return fakeAuth.signin(() => {
       const userObject = {
         name: "testuser",

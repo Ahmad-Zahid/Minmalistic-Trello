@@ -10,12 +10,13 @@ const InputContainer = lazy(() => import("../Input/InputContainer"));
 
 // Stylesheet
 import { useListStyle } from "./styles";
+import { CardType } from "../../constants/types";
 
 interface ListProps {
   list: {
     id: string;
     title: string;
-    cards: Array<any>;
+    cards: Array<CardType>;
   };
   index: number;
   currentlyDragged: string;
@@ -45,21 +46,25 @@ export default function List({
 
   return (
     <div key={index}>
-      <Paper className={classes.root}
-      style={isDropabble() ? { backgroundColor: "lightgray" } : {}}
+      <Paper
+        className={classes.root}
+        style={isDropabble() ? { backgroundColor: "lightgray" } : {}}
       >
         <CssBaseline />
         <Suspense fallback={loading}>
           <Title title={title} />
         </Suspense>
-        <Draggable draggableId={id} index={index}>
+        <Draggable draggableId={id.toString()} index={index}>
           {(provided) => (
             <div
-              {...provided.draggableProps}
-              
               ref={provided.innerRef}
+              {...provided.dragHandleProps}
+              {...provided.draggableProps}
             >
-              <Droppable isDropDisabled={isDropabble()} droppableId={id}>
+              <Droppable
+                isDropDisabled={isDropabble()}
+                droppableId={id.toString()}
+              >
                 {(provided) => (
                   <div
                     ref={provided.innerRef}

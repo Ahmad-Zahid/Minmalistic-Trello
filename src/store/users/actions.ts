@@ -8,7 +8,6 @@ export const getLocalUsers = () => ({
     type: GET_LOCAL_USERS,
 });
 
-
 export const getUsersSuccess = (payload: any) => ({
     type: GET_USERS_SUCCESS,
     payload,

@@ -12,10 +12,10 @@ import { UserType } from "../../constants/types";
 interface DropdownProps {
   options?: [];
   styles?: any;
-  handleChangeDropdown: (e: any) => void;
+  handleChangeDropdown: (e: { value: string } ) => void;
   placeholder: string;
   value?: any;
-  withAll?: any;
+  withAll?: boolean;
 }
 
 export default function Dropdown({
@@ -31,7 +31,7 @@ export default function Dropdown({
   const names = users
     ? useMemo(
         () =>
-          users.map((item: UserType, index: number) => {
+          users.map((item: UserType) => {
             const { name } = item;
             const { first: firstName, last: lastName } = name;
             return {

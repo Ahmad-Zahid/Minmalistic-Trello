@@ -1,7 +1,6 @@
 // Packages
 import React, { useState, useContext } from "react";
-import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
-import { Clear } from "@material-ui/icons";
+import { Paper, InputBase, Button } from "@material-ui/core";
 import Slider from "@material-ui/core/Slider";
 
 // Components
@@ -34,8 +33,9 @@ export default function InputCard({
   const { addMoreCard, addMoreList } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
   const [user, setUser] = useState<UserType | string>("");
+  const [points, setPoints] = useState<number | number[]>(1);
 
-  const handleChangeDropdown = (selected: any) => {
+  const handleChangeDropdown = (selected: { value: string }) => {
     setUser(selected.value);
   };
   const handleOnInputChange = (e: any): void => {
@@ -44,7 +44,7 @@ export default function InputCard({
 
   const handleBtnConfirm = (): void => {
     if (type === "card") {
-      addMoreCard(title, listId, user);
+      addMoreCard(title, listId, user, points);
       setTitle("");
       setOpen(false);
     } else {
@@ -59,7 +59,7 @@ export default function InputCard({
     if (type === "card" && user === "") return true;
     return false;
   };
-  const marks = [
+  const storypoints = [
     {
       value: 1,
       label: "1",
@@ -77,17 +77,17 @@ export default function InputCard({
       label: "8",
     },
     {
-      value: 12,
-      label: "12",
+      value: 13,
+      label: "13",
     },
   ];
 
   function valuetext(value: any) {
     return `${value}`;
   }
-  const onChangeSlider =(event: any, value: number | number[])=>{
-    console.log('slider value',value)
-  }
+  const onChangeSlider = (event: any, value: number | number[]) => {
+    setPoints(value);
+  };
   return (
     <div>
       <div>
@@ -114,18 +114,21 @@ export default function InputCard({
             placeholder={"Select User"}
           />
         )}
-       { 
-       <div style={{marginLeft:'15px'}}>
-        Choose story points
-       <Slider
-          getAriaValueText={valuetext}
-          step={null}
-          style={{width:'200px',}}
-          valueLabelDisplay="auto"
-          marks={marks}
-          max={12}
-          onChangeCommitted={onChangeSlider}
-        /></div>}
+        {
+          <div style={{ marginLeft: "15px" }}>
+            Choose story points
+            <Slider
+              getAriaValueText={valuetext}
+              step={null}
+              min={1}
+              style={{ width: "200px" }}
+              valueLabelDisplay="auto"
+              marks={storypoints}
+              max={13}
+              onChangeCommitted={onChangeSlider}
+            />
+          </div>
+        }
       </div>
       <div className={classes.confirm}>
         <Button
@@ -135,10 +138,7 @@ export default function InputCard({
         >
           {type === "card" ? "Add Card" : "Add List"}
         </Button>
-        <Button
-          className={classes.btnCancel}
-          onClick={() => setOpen(false)}
-        >
+        <Button className={classes.btnCancel} onClick={() => setOpen(false)}>
           Cancel
         </Button>
       </div>

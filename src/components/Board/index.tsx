@@ -25,23 +25,37 @@ import { getLocalUsers } from "../../store/users/actions";
 import { useStyle } from "./styles";
 import { routes } from "../../constants/routes";
 
+// Types
+import {
+  DropdownType,
+  PerferencesType,
+  CardType,
+} from "../../constants/types";
+
+const styles = {
+  container: (css: any) => ({ ...css, width: "200px" }),
+};
+
 export default function Board(): ReactElement {
-  let localData = localStorage.getItem("user");
+  const localData = localStorage.getItem("user");
+  let preferencesData: PerferencesType = { color: "", boardTitle: "" };
   let persistedData: any = localStorage.getItem("data");
-  if (localData) localData = JSON.parse(localData);
+
+  if (localData) preferencesData = JSON.parse(localData);
   if (persistedData) persistedData = JSON.parse(persistedData);
   else persistedData = constantData;
 
   const dispatch = useDispatch();
-  const [data, setData] = useState<types>(persistedData);
-  const [tempData, setTempData] = useState<types>(persistedData);
-  const [dropdownValue, setDropdownValue] = useState<any>();
-  const [currentlyDragged, setCurrentlyDragged] = useState("");
-  const [moving, setMoving] = useState(false);
-  const preferences: any = localData;
   const classes = useStyle();
   const history = useHistory();
   const location = useLocation();
+
+  const [data, setData] = useState<types>(persistedData);
+  const [filteredData, setfilteredData] = useState<types>(persistedData);
+  const [dropdownValue, setDropdownValue] = useState<DropdownType>();
+  const [currentlyDragged, setCurrentlyDragged] = useState("");
+  const [moving, setMoving] = useState(false);
+  const preferences: PerferencesType = preferencesData;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,8 +64,8 @@ export default function Board(): ReactElement {
     fetchData();
   }, []);
   useEffect(() => {
-    let search: any = location.search;
-    setTempData(persistedData);
+    let search: string | string[] = location.search;
+    setfilteredData(persistedData);
 
     if (search === "") {
       setDropdownValue({ label: "All", value: "All" });
@@ -69,26 +83,32 @@ export default function Board(): ReactElement {
     const filtered = JSON.parse(JSON.stringify(data));
     for (const key in data.lists) {
       filtered.lists[key].cards = [];
-      data.lists[key].cards.map((card: any) => {
+      data.lists[key].cards.map((card: CardType) => {
         if (card.user === search) {
           filtered.lists[key].cards.push(card);
         }
       });
     }
-    setTempData(filtered);
+    setfilteredData(filtered);
   }, [location]);
 
   useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data));
   }, [data]);
 
-  const addMoreCard = (title: string, listId: string, user: any) => {
-    const newCardId = uuid();
-    const newCard = {
+  const addMoreCard = (
+    title: string,
+    listId: string,
+    user: string,
+    storypoints: number
+  ) => {
+    const newCardId: string = uuid();
+    const newCard: CardType = {
       id: newCardId,
       title,
       user: user,
       restricted: [],
+      storypoints: storypoints,
     };
 
     const list = data.lists[listId];
@@ -101,16 +121,15 @@ export default function Board(): ReactElement {
       },
     };
     setData(newState);
-    setTempData(newState)
-
+    setfilteredData(newState);
   };
 
-  const editOrRemoveCard = (card: any, type: string) => {
+  const editOrRemoveCard = (card: CardType, type: string) => {
     const temp = { ...data };
     for (const currentList in data.lists) {
       for (const listItem in data.lists[currentList]) {
         const cardIndex = data.lists[currentList].cards.findIndex(
-          (itemx: any) => itemx.id === card.id
+          (itemx: { id: string }) => itemx.id === card.id
         );
         if (type === "edit") temp.lists[currentList].cards[cardIndex] = card;
         else if (cardIndex > -1)
@@ -118,7 +137,7 @@ export default function Board(): ReactElement {
       }
     }
     setData(temp);
-    setTempData(temp)
+    setfilteredData(temp);
   };
 
   const addMoreList = (title: string) => {
@@ -158,7 +177,7 @@ export default function Board(): ReactElement {
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
     const draggingCard = sourceList.cards.filter(
-      (card: { id: any }) => card.id === draggableId
+      (card: { id: string }) => card.id === draggableId
     )[0];
 
     if (source.droppableId === destination.droppableId) {
@@ -187,14 +206,12 @@ export default function Board(): ReactElement {
       setData(newState);
     }
   };
-  const onDragStart = (result: any) => {
+  const onDragStart = (result: { source: { droppableId: string } }) => {
     setCurrentlyDragged(result.source.droppableId);
     setMoving(!moving);
   };
-  const styles = {
-    container: (css: any) => ({ ...css, width: "200px" }),
-  };
-  const handleChangeDropdown = (selected: any) => {
+
+  const handleChangeDropdown = (selected: { [key: string]: string }) => {
     const queryParam = encodeURIComponent(selected.value.split(" ").join("-"));
 
     history.push({
@@ -224,14 +241,14 @@ export default function Board(): ReactElement {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {tempData.listIds.map((listId, index) => {
-                  const list = tempData.lists[listId];
+                {filteredData.listIds.map((listId, index) => {
+                  const list = filteredData.lists[listId];
                   return (
                     <List
                       list={list}
                       index={index}
                       currentlyDragged={currentlyDragged}
-                      allLists={tempData.lists}
+                      allLists={filteredData.lists}
                       moving={moving}
                     />
                   );
