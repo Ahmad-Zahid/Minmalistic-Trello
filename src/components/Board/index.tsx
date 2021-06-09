@@ -13,6 +13,7 @@ import Dropdown from "../Dropdown/Dropdown";
 
 // Constants
 import constantData, { types } from "../../constants/listsData";
+import { storypoints } from "../../constants/slider";
 
 // Utils
 import StoreApi from "../../utils/context";
@@ -26,11 +27,7 @@ import { useStyle } from "./styles";
 import { routes } from "../../constants/routes";
 
 // Types
-import {
-  DropdownType,
-  PerferencesType,
-  CardType,
-} from "../../constants/types";
+import { DropdownType, PerferencesType, CardType } from "../../constants/types";
 
 const styles = {
   container: (css: any) => ({ ...css, width: "200px" }),
@@ -48,14 +45,20 @@ export default function Board(): ReactElement {
   const dispatch = useDispatch();
   const classes = useStyle();
   const history = useHistory();
-  const location = useLocation();
+  const { search: searchParam } = useLocation();
 
   const [data, setData] = useState<types>(persistedData);
   const [filteredData, setfilteredData] = useState<types>(persistedData);
   const [dropdownValue, setDropdownValue] = useState<DropdownType>();
+  const [spDropdownValue, setspDropdownValue] = useState<DropdownType>();
   const [currentlyDragged, setCurrentlyDragged] = useState("");
   const [moving, setMoving] = useState(false);
   const preferences: PerferencesType = preferencesData;
+  const queryParams = new URLSearchParams(searchParam);
+  const storyPoints = storypoints.unshift({
+    value: "All",
+    label: "All Storypoints",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,34 +66,53 @@ export default function Board(): ReactElement {
     };
     fetchData();
   }, []);
+
   useEffect(() => {
-    let search: string | string[] = location.search;
     setfilteredData(persistedData);
 
-    if (search === "") {
-      setDropdownValue({ label: "All", value: "All" });
-      return;
-    }
+    const searchParams = new URLSearchParams(searchParam);
+    let assignee = searchParams.get("assignee");
+    const storypoints = searchParams.get("storypoints");
+    if (assignee) assignee = assignee.split("-").join(" ");
 
-    search = decodeURIComponent(search);
-    search = search.split("=");
-    search = search[1].split("-").join(" ");
+    setspDropdownValue({
+      label: storypoints ? storypoints : "All storypoints",
+      value: storypoints ? storypoints : "All",
+    });
 
-    setDropdownValue({ label: search, value: search });
-    if (search === "All") {
-      return;
-    }
+    setDropdownValue({
+      label: assignee ? assignee : "All Users",
+      value: assignee ? assignee : "All",
+    });
+    if (assignee || storypoints) searchCards(assignee, storypoints);
+  }, [searchParam]);
+
+  const searchCards = (assginee: string | null, storypoints: string | null) => {
     const filtered = JSON.parse(JSON.stringify(data));
     for (const key in data.lists) {
       filtered.lists[key].cards = [];
       data.lists[key].cards.map((card: CardType) => {
-        if (card.user === search) {
-          filtered.lists[key].cards.push(card);
+        if (assginee && storypoints) {
+          if (
+            card.user === assginee &&
+            card.storypoints.toString() === storypoints
+          )
+            filtered.lists[key].cards.push(card);
+        } else if (assginee) {
+          if (card.user === assginee || assginee === "" || assginee === "All")
+            filtered.lists[key].cards.push(card);
+        } else if (storypoints) {
+          if (
+            card.storypoints.toString() === storypoints ||
+            storypoints === "" ||
+            storypoints === "All"
+          )
+            filtered.lists[key].cards.push(card);
         }
       });
     }
     setfilteredData(filtered);
-  }, [location]);
+  };
 
   useEffect(() => {
     localStorage.setItem("data", JSON.stringify(data));
@@ -206,26 +228,42 @@ export default function Board(): ReactElement {
       setData(newState);
     }
   };
+
   const onDragStart = (result: { source: { droppableId: string } }) => {
     setCurrentlyDragged(result.source.droppableId);
     setMoving(!moving);
   };
 
   const handleChangeDropdown = (selected: { [key: string]: string }) => {
-    const queryParam = encodeURIComponent(selected.value.split(" ").join("-"));
+    const { value } = selected;
+    const query = encodeURIComponent(selected.value.split(" ").join("-"));
+
+    if (value === "All") queryParams.delete("assignee");
+    else queryParams.set("assignee", query);
 
     history.push({
       pathname: routes.board,
-      search: `?assignee=${queryParam}`,
+      search: queryParams.toString(),
     });
   };
-  return (
-    <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
-      <div
-        className={classes.root}
-        style={{ backgroundColor: preferences.color }}
-      >
-        <TopBar title={preferences.boardTitle} />
+
+  const handleChangeDropdownSP = (selected: { [key: string]: string }) => {
+    const { value } = selected;
+    const query = encodeURIComponent(value);
+
+    if (value === "All") queryParams.delete("storypoints");
+    else queryParams.set("storypoints", query);
+
+    history.push({
+      pathname: routes.board,
+      search: queryParams.toString(),
+    });
+  };
+
+  const Filters = () => {
+    return (
+      <div className={classes.row}>
+        <text className={classes.filterTitle}>Filters</text>
         <Dropdown
           styles={styles}
           handleChangeDropdown={handleChangeDropdown}
@@ -233,6 +271,25 @@ export default function Board(): ReactElement {
           value={dropdownValue}
           withAll
         />
+        <Dropdown
+          styles={styles}
+          handleChangeDropdown={handleChangeDropdownSP}
+          placeholder={"All Storypoints"}
+          value={spDropdownValue}
+          options={storyPoints}
+        />
+      </div>
+    );
+  };
+
+  return (
+    <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
+      <div
+        className={classes.root}
+        style={{ backgroundColor: preferences.color }}
+      >
+        <TopBar title={preferences.boardTitle} />
+        <Filters />
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
           <Droppable droppableId="app" type="list" direction="horizontal">
             {(provided) => (

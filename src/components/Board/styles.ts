@@ -17,5 +17,12 @@ export const useStyle = makeStyles((theme) => ({
       display: "flex",
       columns: 4,
     },
+    row:{
+      display: "flex",
+      flexDirection: "row",
+      marginLeft: "1vw",
+      alignItems: "center",
+    },
+    filterTitle:{ fontWeight: "bold", fontSize: "1.5rem" }
   }));
   

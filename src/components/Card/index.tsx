@@ -18,7 +18,7 @@ interface CardProps {
 }
 export default function Card({ card, index }: CardProps): ReactElement {
   const { editOrRemoveCard } = useContext(context);
-  const { user, title: titleProps, id ,storypoints} = card;
+  const { user, title: titleProps, id, storypoints } = card;
   const [showSubContainer, setShowSubContainer] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [title, setTitle] = useState(titleProps);
@@ -67,9 +67,11 @@ export default function Card({ card, index }: CardProps): ReactElement {
               ) : (
                 <Typography>{title}</Typography>
               )}
-              <div style={{display:'flex' ,flexDirection:'row'}}>
-              <Typography variant="subtitle2">{user ? user : ""}</Typography>
-              <Typography variant="subtitle2">{storypoints}</Typography>
+              <div className={classes.rowContainer}>
+                <Typography variant="subtitle2">{user ? user : ""}</Typography>
+                <div className={classes.storypointContainer}>
+                  <text>{storypoints}</text>
+                </div>
               </div>
             </div>
             {showSubContainer && !isEditable && (

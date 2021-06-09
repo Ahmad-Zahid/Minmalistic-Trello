@@ -20,7 +20,7 @@ import { routes } from "../../constants/routes";
 import { useStyle } from "./styles";
 
 export default function Welcome(): ReactElement {
-  const [currentColor, setCurrentColor] = useState("#000");
+  const [currentColor, setCurrentColor] = useState("#d8d8");
   const [pickColor, setPickColor] = useState(false);
   const [title, setTitle] = useState("");
   const history = useHistory();
@@ -84,6 +84,7 @@ export default function Welcome(): ReactElement {
           onClick={onButtonPress}
           variant="contained"
           color="secondary"
+          disabled={title===''}
         >
           Create
         </Button>

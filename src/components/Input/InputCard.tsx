@@ -9,8 +9,9 @@ import Dropdown from "../Dropdown/Dropdown";
 // Utils
 import storeApi from "../../utils/context";
 
-// Types
+// Constants
 import { UserType } from "../../constants/types";
+import {storypoints} from '../../constants/slider'
 
 // Stylesheet
 import { useInputCardStyle } from "./styles";
@@ -59,28 +60,6 @@ export default function InputCard({
     if (type === "card" && user === "") return true;
     return false;
   };
-  const storypoints = [
-    {
-      value: 1,
-      label: "1",
-    },
-    {
-      value: 3,
-      label: "3",
-    },
-    {
-      value: 5,
-      label: "5",
-    },
-    {
-      value: 8,
-      label: "8",
-    },
-    {
-      value: 13,
-      label: "13",
-    },
-  ];
 
   function valuetext(value: any) {
     return `${value}`;

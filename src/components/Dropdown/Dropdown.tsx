@@ -7,10 +7,10 @@ import { useSelector } from "react-redux";
 import { useInputCardStyle } from "../Input/styles";
 
 // Types
-import { UserType } from "../../constants/types";
+import { ObjectType, UserType } from "../../constants/types";
 
 interface DropdownProps {
-  options?: [];
+  options?: any;
   styles?: any;
   handleChangeDropdown: (e: { value: string } ) => void;
   placeholder: string;
@@ -43,7 +43,7 @@ export default function Dropdown({
       )
     : [];
   if (withAll && names.length > 0) {
-    if (names[0].value !== "All") names.unshift({ label: "All", value: "All" });
+    if (names[0].value !== "All") names.unshift({ label: "All Users", value: "All" });
   }
   return (
     <Select
@@ -53,7 +53,7 @@ export default function Dropdown({
       options={options || names}
       className={classes.formControl}
       value={value}
-      defaultValue={names[0]}
+      defaultValue={options?options[0]:names[0]}
     />
   );
 }
