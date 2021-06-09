@@ -1,9 +1,9 @@
 // Packages
 import { useState, useEffect, ReactElement } from "react";
-import { v4 as uuid } from "uuid";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router";
+import { Typography } from "@material-ui/core";
 
 // Components
 import TopBar from "../Header/TopBar";
@@ -17,7 +17,7 @@ import { storypoints } from "../../constants/slider";
 
 // Utils
 import StoreApi from "../../utils/context";
-import { validate } from "../../utils/helpers";
+import { addCard, addList, validate } from "../../utils/helpers";
 
 // Actions
 import { getLocalUsers } from "../../store/users/actions";
@@ -28,7 +28,6 @@ import { routes } from "../../constants/routes";
 
 // Types
 import { DropdownType, PerferencesType, CardType } from "../../constants/types";
-import { Typography } from "@material-ui/core";
 
 const styles = {
   container: (css: any) => ({ ...css, width: "200px" }),
@@ -47,21 +46,23 @@ export default function Board(): ReactElement {
   const classes = useStyle();
   const history = useHistory();
   const { search: searchParam } = useLocation();
-
+  const storyPoints = [...storypoints];
+  const preferences: PerferencesType = preferencesData;
+  const queryParams = new URLSearchParams(searchParam);
+  
   const [data, setData] = useState<types>(persistedData);
   const [filteredData, setfilteredData] = useState<types>(persistedData);
   const [dropdownValue, setDropdownValue] = useState<DropdownType>();
   const [spDropdownValue, setspDropdownValue] = useState<DropdownType>();
   const [currentlyDragged, setCurrentlyDragged] = useState("");
   const [moving, setMoving] = useState(false);
-  const preferences: PerferencesType = preferencesData;
-  const queryParams = new URLSearchParams(searchParam);
-  const storyPoints = [...storypoints];
+  
   if (storyPoints[0].value !== "All")
-    storyPoints.unshift({
-      value: "All",
-      label: "All Storypoints",
-    });
+  storyPoints.unshift({
+    value: "All",
+    label: "All Storypoints",
+  });
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,24 +128,7 @@ export default function Board(): ReactElement {
     user: string,
     storypoints: number
   ) => {
-    const newCardId: string = uuid();
-    const newCard: CardType = {
-      id: newCardId,
-      title,
-      user: user,
-      restricted: [],
-      storypoints: storypoints,
-    };
-
-    const list = data.lists[listId];
-    list.cards = [...list.cards, newCard];
-    const newState = {
-      ...data,
-      lists: {
-        ...data.lists,
-        [listId]: list,
-      },
-    };
+    const newState = addCard(data, title, listId, user, storypoints);
     setData(newState);
     setfilteredData(newState);
   };
@@ -166,21 +150,7 @@ export default function Board(): ReactElement {
   };
 
   const addMoreList = (title: string) => {
-    const newListId = uuid();
-    const newList = {
-      id: newListId,
-      title,
-      cards: [],
-      user: {},
-      restricted: [],
-    };
-    const newState = {
-      listIds: [...data.listIds, newListId],
-      lists: {
-        ...data.lists,
-        [newListId]: newList,
-      },
-    };
+    const newState = addList(title, data);
     setData(newState);
     setfilteredData(newState);
   };
@@ -240,10 +210,13 @@ export default function Board(): ReactElement {
     setMoving(!moving);
   };
 
-  const handleChangeDropdown = (selected: { [key: string]: string }, type: string) => {
+  const handleChangeDropdown = (
+    selected: { [key: string]: string },
+    type: string
+  ) => {
     const { value } = selected;
     let query = "";
-    
+
     if (query) query = encodeURIComponent(value.split(" ").join("-"));
     else query = encodeURIComponent(value);
 

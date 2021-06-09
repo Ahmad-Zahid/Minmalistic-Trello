@@ -93,7 +93,7 @@ export default function InputCard({
             placeholder={"Select User"}
           />
         )}
-        {
+        {type === "card" && (
           <div style={{ marginLeft: "15px" }}>
             Choose story points
             <Slider
@@ -107,7 +107,7 @@ export default function InputCard({
               onChangeCommitted={onChangeSlider}
             />
           </div>
-        }
+        )}
       </div>
       <div className={classes.confirm}>
         <Button
