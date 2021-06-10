@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { types } from "../constants/listsData";
 import { CardType } from "../constants/types";
 
-export const validate = (source: string, destination: any, data: any): boolean => {
+export const validate = (source: string, destination: any, data: types): boolean => {
     if (data.lists[source].restricted.includes(destination)) return false;
     return true;
 };
@@ -56,4 +56,31 @@ export const addList = (title: string, data: types): types => {
         },
     };
     return newState
+}
+
+export const searchCard = (assginee: string | null, storypoints: string | null, data: types): types => {
+    const filtered = JSON.parse(JSON.stringify(data));
+    for (const key in data.lists) {
+        filtered.lists[key].cards = [];
+        data.lists[key].cards.map((card: CardType) => {
+            if (assginee && storypoints) {
+                if (
+                    card.user === assginee &&
+                    card.storypoints.toString() === storypoints
+                )
+                    filtered.lists[key].cards.push(card);
+            } else if (assginee) {
+                if (card.user === assginee || assginee === "" || assginee === "All")
+                    filtered.lists[key].cards.push(card);
+            } else if (storypoints) {
+                if (
+                    card.storypoints.toString() === storypoints ||
+                    storypoints === "" ||
+                    storypoints === "All"
+                )
+                    filtered.lists[key].cards.push(card);
+            }
+        });
+    }
+    return filtered
 }

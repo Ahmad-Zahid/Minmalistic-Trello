@@ -1,37 +1,32 @@
 // Packages
 import { useState, useEffect, ReactElement } from "react";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router";
 import { Typography } from "@material-ui/core";
 
 // Components
 import TopBar from "../Header/TopBar";
-import List from "../../components/List/List";
-import InputContainer from "../../components/Input/InputContainer";
 import Dropdown from "../Dropdown/Dropdown";
+import DropabbleBody from "./Body";
 
 // Constants
 import constantData, { types } from "../../constants/listsData";
 import { storypoints } from "../../constants/slider";
+import { routes } from "../../constants/routes";
 
 // Utils
 import StoreApi from "../../utils/context";
-import { addCard, addList, validate } from "../../utils/helpers";
+import { addCard, addList, searchCard, validate } from "../../utils/helpers";
 
 // Actions
 import { getLocalUsers } from "../../store/users/actions";
 
 // Stylesheet
-import { useStyle } from "./styles";
-import { routes } from "../../constants/routes";
+import { useStyle, styles } from "./styles";
 
 // Types
 import { DropdownType, PerferencesType, CardType } from "../../constants/types";
-
-const styles = {
-  container: (css: any) => ({ ...css, width: "200px" }),
-};
 
 export default function Board(): ReactElement {
   const localData = localStorage.getItem("user");
@@ -49,20 +44,19 @@ export default function Board(): ReactElement {
   const storyPoints = [...storypoints];
   const preferences: PerferencesType = preferencesData;
   const queryParams = new URLSearchParams(searchParam);
-  
+
   const [data, setData] = useState<types>(persistedData);
   const [filteredData, setfilteredData] = useState<types>(persistedData);
   const [dropdownValue, setDropdownValue] = useState<DropdownType>();
   const [spDropdownValue, setspDropdownValue] = useState<DropdownType>();
-  const [currentlyDragged, setCurrentlyDragged] = useState("");
-  const [moving, setMoving] = useState(false);
-  
+  const [currentlyDragged, setCurrentlyDragged] = useState<string>("");
+  const [moving, setMoving] = useState<boolean>(false);
+
   if (storyPoints[0].value !== "All")
-  storyPoints.unshift({
-    value: "All",
-    label: "All Storypoints",
-  });
- 
+    storyPoints.unshift({
+      value: "All",
+      label: "All Storypoints",
+    });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +67,6 @@ export default function Board(): ReactElement {
 
   useEffect(() => {
     setfilteredData(persistedData);
-
     const searchParams = new URLSearchParams(searchParam);
     let assignee = searchParams.get("assignee");
     const storypoints = searchParams.get("storypoints");
@@ -92,29 +85,7 @@ export default function Board(): ReactElement {
   }, [searchParam]);
 
   const searchCards = (assginee: string | null, storypoints: string | null) => {
-    const filtered = JSON.parse(JSON.stringify(data));
-    for (const key in data.lists) {
-      filtered.lists[key].cards = [];
-      data.lists[key].cards.map((card: CardType) => {
-        if (assginee && storypoints) {
-          if (
-            card.user === assginee &&
-            card.storypoints.toString() === storypoints
-          )
-            filtered.lists[key].cards.push(card);
-        } else if (assginee) {
-          if (card.user === assginee || assginee === "" || assginee === "All")
-            filtered.lists[key].cards.push(card);
-        } else if (storypoints) {
-          if (
-            card.storypoints.toString() === storypoints ||
-            storypoints === "" ||
-            storypoints === "All"
-          )
-            filtered.lists[key].cards.push(card);
-        }
-      });
-    }
+    const filtered = searchCard(assginee, storypoints, data);
     setfilteredData(filtered);
   };
 
@@ -160,9 +131,8 @@ export default function Board(): ReactElement {
 
     const { destination, source, draggableId, type } = result;
     if (!validate(source.droppableId, destination?.droppableId, data)) return;
-    if (!destination) {
-      return;
-    }
+    if (!destination) return;
+
     if (type === "list") {
       const newListIds = data.listIds;
       newListIds.splice(source.index, 1);
@@ -264,30 +234,11 @@ export default function Board(): ReactElement {
         <TopBar title={preferences.boardTitle} />
         <Filters />
         <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-          <Droppable droppableId="app" type="list" direction="horizontal">
-            {(provided) => (
-              <div
-                className={`${classes.listContainer} ${classes.my}`}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {filteredData.listIds.map((listId, index) => {
-                  const list = filteredData.lists[listId];
-                  return (
-                    <List
-                      list={list}
-                      index={index}
-                      currentlyDragged={currentlyDragged}
-                      allLists={filteredData.lists}
-                      moving={moving}
-                    />
-                  );
-                })}
-                <InputContainer type="list" listId={"x"} />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
+          <DropabbleBody
+            filteredData={filteredData}
+            currentlyDragged={currentlyDragged}
+            moving={moving}
+          />
         </DragDropContext>
       </div>
     </StoreApi.Provider>
