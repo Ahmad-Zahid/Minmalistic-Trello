@@ -10,15 +10,10 @@ import Login from "../Auth/LogIn";
 
 // Stylesheet
 import { useStyle } from "./styles";
-import { googleAuthProvider } from "../../service/firebaseConfig";
 
 export default function Welcome(): ReactElement {
   const classes: any = useStyle();
-  useEffect(()=>{
-    firebase.auth().signInAnonymously().then((result: any) => {
-      console.log("result after sign in", result);
-    });
-  },[])
+ 
   return (
     <div className={classes.container}>
       <Typography variant="h2" gutterBottom className={classes.text}>

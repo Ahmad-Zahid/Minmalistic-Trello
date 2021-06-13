@@ -17,13 +17,10 @@ import { PublicRoute } from "./routes/PublicRoute";
 
 // Constants
 import { routes } from "./constants/routes";
-import { FirebaseAuthProvider } from "@react-firebase/auth";
-import { config } from "./service/firebaseConfig";
 
 export default function App(): ReactElement {
   return (
     <ProvideAuth>
-      <FirebaseAuthProvider firebase={firebase} {...config}>
       <Router>
         <PublicRoute>
           <Route path={routes.welcome} exact component={Welcome} />
@@ -32,7 +29,6 @@ export default function App(): ReactElement {
           <Route path={routes.board} component={Board} />
         </PrivateRoute>
       </Router>
-      </FirebaseAuthProvider>
 
     </ProvideAuth>
   );

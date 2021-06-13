@@ -1,5 +1,5 @@
 // Packages
-import { ReactElement } from "react";
+import { ReactElement, useContext, useEffect } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -7,9 +7,13 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import firebase from "firebase/app";
 
 //
-import { auth, googleAuthProvider } from "../../service/firebaseConfig";
+
+// import { useAuth } from "../../utils/firebaseContext";
+import context from "../../utils/context";
+import { useAuth } from "../../routes";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -37,16 +41,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Login(): ReactElement {
   const classes = useStyles();
+  const { loginAnonymously ,loginWithGoogle} = useAuth();
 
-  const signInWithGoogle = () => {
-    auth().signInWithPopup(googleAuthProvider).then((result: any) => {
-      console.log("result after sign in", result);
-    });
+  const signInWithGoogle = async() => {
+    const response = await loginWithGoogle();
+    console.log("response", response);
+    
   };
-  const signInAnonymously = () => {
-    auth().signInAnonymously().then((result: any) => {
-      console.log("result after sign in", result);
-    });
+  const signInAnonymously = async () => {
+    const response = await loginAnonymously();
+    console.log("response", response);
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -60,12 +64,11 @@ export default function Login(): ReactElement {
         </Typography>
         <form className={classes.form} noValidate>
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={signInAnonymously}
+            onClick={()=>signInAnonymously()}
           >
             Sign In Anonymously
             <Avatar
@@ -74,7 +77,6 @@ export default function Login(): ReactElement {
           </Button>
 
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="secondary"

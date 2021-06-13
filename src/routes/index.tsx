@@ -1,5 +1,6 @@
-import { useContext, createContext, useState, ReactElement } from "react";
+import { useContext, createContext, useState, useEffect,ReactElement } from "react";
 import { PerferencesType } from "../constants/types";
+import { auth, googleAuthProvider } from "../service/firebaseConfig";
 
 const fakeAuth = {
   isAuthenticated: false,
@@ -41,6 +42,51 @@ function useProvideAuth() {
       cb();
     });
   };
+
+
+  const [currentUser, setCurrentUser] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+
+  function signup(email: any, password: any) {
+    return auth.createUserWithEmailAndPassword(email, password);
+  }
+
+  function loginWithEmailPassword(email: any, password: any) {
+    return auth.signInWithEmailAndPassword(email, password);
+  }
+  function loginAnonymously() {
+    return auth.signInAnonymously();
+  }
+
+  function loginWithGoogle() {
+    return auth.signInWithPopup(googleAuthProvider);
+  }
+
+  function logout() {
+    return auth.signOut();
+  }
+
+  function resetPassword(email: any) {
+    return auth.sendPasswordResetEmail(email);
+  }
+
+  function updateEmail(email: any) {
+    return currentUser.updateEmail(email);
+  }
+
+  function updatePassword(password: any) {
+    return currentUser.updatePassword(password);
+  }
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user: any) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
   const signout = (cb: () => void) => {
     return fakeAuth.signout(() => {
       setUser(null);
@@ -52,6 +98,15 @@ function useProvideAuth() {
   return {
     user,
     signin,
-    signout,
+    signout, 
+    currentUser,
+    loginAnonymously,
+    loginWithEmailPassword,
+    loginWithGoogle,
+    signup,
+    logout,
+    resetPassword,
+    updateEmail,
+    updatePassword,
   };
 }
