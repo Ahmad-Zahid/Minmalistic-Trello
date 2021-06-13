@@ -29,7 +29,7 @@ function useProvideAuth() {
   if (localData) localData = JSON.parse(localData);
   const [user, setUser] = useState<any>(localData);
 
-  const signin = (userPreferences: PerferencesType, cb: () => void) => {
+  const signin = (user:any,userPreferences: PerferencesType, cb: () => void) => {
     return fakeAuth.signin(() => {
       const userObject = {
         name: "testuser",

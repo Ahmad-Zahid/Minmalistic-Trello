@@ -1,94 +1,34 @@
 // Packages
-import { useState, ReactElement } from "react";
+import {  ReactElement, useEffect } from "react";
 import { Typography } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import { CirclePicker } from "react-color";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import firebase from "firebase/app";
+import "firebase/auth";
 
-// Actions
-import { getUsers } from "../../store/users/actions";
 
-// Navigation
-import { useAuth } from "../../routes";
-
-// Constants
-import { routes } from "../../constants/routes";
+// Components
+import Login from "../Auth/LogIn";
 
 // Stylesheet
 import { useStyle } from "./styles";
+import { googleAuthProvider } from "../../service/firebaseConfig";
 
 export default function Welcome(): ReactElement {
-  const [currentColor, setCurrentColor] = useState("#d8d8");
-  const [pickColor, setPickColor] = useState(false);
-  const [title, setTitle] = useState("");
-  const history = useHistory();
-  const auth: any = useAuth();
   const classes: any = useStyle();
-  const dispatch = useDispatch();
-
-  const handleColorChange = ({ hex }: { hex: any }) => {
-    setCurrentColor(hex);
-  };
-
-  const handOnChangeText = (event: any) => {
-    setTitle(event.target.value);
-    if (event.target.value !== "") setPickColor(true);
-    else setPickColor(false);
-  };
-  const onButtonPress = () => {
-    const user = {
-      title: title,
-      color: currentColor,
-    };
-    auth.signin(user, () => {
-      dispatch(getUsers());
-      history.replace({
-        pathname: routes.board,
-      });
+  useEffect(()=>{
+    firebase.auth().signInAnonymously().then((result: any) => {
+      console.log("result after sign in", result);
     });
-  };
-
+  },[])
   return (
     <div className={classes.container}>
-      <Typography variant="h2" gutterBottom>
+      <Typography variant="h2" gutterBottom className={classes.text}>
         Welcome to Trello
       </Typography>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom className={classes.text}>
         Get Started with Trello by creating a new board!
       </Typography>
-
-      <div className={classes.body}>
-        <TextField
-          className={classes.input}
-          label="Board title"
-          variant="filled"
-          onChange={handOnChangeText}
-        />
-        {pickColor && (
-          <div
-            style={{
-              marginBottom: 15,
-            }}
-          >
-            <CirclePicker
-              color={currentColor}
-              onChangeComplete={handleColorChange}
-            />
-          </div>
-        )}
-
-        <Button
-          style={{ backgroundColor: currentColor }}
-          onClick={onButtonPress}
-          variant="contained"
-          color="secondary"
-          disabled={title===''}
-        >
-          Create
-        </Button>
-      </div>
+    
+      <Login />
     </div>
   );
 }

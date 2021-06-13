@@ -22,4 +22,7 @@ export const useStyle = makeStyles(() => ({
         marginBottom: 10,
         textDecorationLine: "none",
     },
+    text:{
+        textAlign: "center"
+    }
 }));
