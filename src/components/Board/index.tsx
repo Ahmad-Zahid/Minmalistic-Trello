@@ -1,171 +1,138 @@
 // Packages
 import { useState, useEffect, ReactElement } from "react";
-import { v4 as uuid } from "uuid";
-import { makeStyles } from "@material-ui/core/styles";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useLocation } from "react-router";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useDispatch } from "react-redux";
+import { useHistory, useLocation } from "react-router";
+import { Typography } from "@material-ui/core";
 
 // Components
 import TopBar from "../Header/TopBar";
-import List from "../../components/List/List";
-import InputContainer from "../../components/Input/InputContainer";
+import Dropdown from "../Dropdown/Dropdown";
+import DropabbleBody from "./Body";
 
 // Constants
-import constantData, { types } from "../../constants/data";
+import constantData, { types } from "../../constants/listsData";
+import { storypoints } from "../../constants/slider";
+import { routes } from "../../constants/routes";
 
 // Utils
 import StoreApi from "../../utils/context";
+import { addCard, addList, searchCard, validate } from "../../utils/helpers";
 
-// Service
-import { fetchUsers } from "../../service/api";
+// Actions
+import { getLocalUsers } from "../../store/users/actions";
 
-const useStyle = makeStyles((theme) => ({
-  root: {
-    minHeight: "100vh",
-    background: "green",
-    width: "100%",
-    overflowY: "auto",
-  },
-  listContainer: {
-    display: "flex",
-    [theme.breakpoints.down("xs")]: {
-      flexDirection: "column",
-      // columnCount:3
-    },
-  },
-  my: {
-    display: "flex",
-    columns: 4,
-  },
-}));
+// Stylesheet
+import { useStyle, styles } from "./styles";
+
+// Types
+import { DropdownType, PerferencesType, CardType } from "../../constants/types";
 
 export default function Board(): ReactElement {
-  let localData = localStorage.getItem("user");
-  console.log("localData", localData);
+  const localData = localStorage.getItem("user");
+  let preferencesData: PerferencesType = { color: "", boardTitle: "" };
+  let persistedData: any = localStorage.getItem("data");
 
-  if (localData) localData = JSON.parse(localData);
-  console.log("localData", localData);
-  const [preferences, setPreferences] = useState<any>(localData);
-  const [data, setData] = useState<types>(constantData);
-  const [users, setUsers] = useState<any>([]);
-  const location: any = useLocation();
+  if (localData) preferencesData = JSON.parse(localData);
+  if (persistedData) persistedData = JSON.parse(persistedData);
+  else persistedData = constantData;
+
+  const dispatch = useDispatch();
   const classes = useStyle();
+  const history = useHistory();
+  const { search: searchParam } = useLocation();
+  const storyPoints = [...storypoints];
+  const preferences: PerferencesType = preferencesData;
+  const queryParams = new URLSearchParams(searchParam);
+
+  const [data, setData] = useState<types>(persistedData);
+  const [filteredData, setfilteredData] = useState<types>(persistedData);
+  const [dropdownValue, setDropdownValue] = useState<DropdownType>();
+  const [spDropdownValue, setspDropdownValue] = useState<DropdownType>();
+  const [currentlyDragged, setCurrentlyDragged] = useState<string>("");
+  const [moving, setMoving] = useState<boolean>(false);
+
+  if (storyPoints[0].value !== "All")
+    storyPoints.unshift({
+      value: "All",
+      label: "All Storypoints",
+    });
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetchUsers();
-      if (data) setUsers(data.results);
+      dispatch(getLocalUsers());
     };
     fetchData();
   }, []);
-  const addMoreCard = (title: string, listId: string, user: any) => {
-    const newCardId = uuid();
-    const newCard = {
-      id: newCardId,
-      title,
-      user: user,
-    };
 
-    const list = data.lists[listId];
-    list.cards = [...list.cards, newCard];
-    const newState = {
-      ...data,
-      lists: {
-        ...data.lists,
-        [listId]: list,
-      },
-    };
-    setData(newState);
+  useEffect(() => {
+    setfilteredData(persistedData);
+    const searchParams = new URLSearchParams(searchParam);
+    let assignee = searchParams.get("assignee");
+    const storypoints = searchParams.get("storypoints");
+    if (assignee) assignee = decodeURIComponent(assignee.split("-").join(" "));
+
+    setspDropdownValue({
+      label: storypoints ? storypoints : "All storypoints",
+      value: storypoints ? storypoints : "All",
+    });
+
+    setDropdownValue({
+      label: assignee ? assignee : "All Users",
+      value: assignee ? assignee : "All",
+    });
+    if (assignee || storypoints) searchCards(assignee, storypoints);
+  }, [searchParam]);
+
+  const searchCards = (assginee: string | null, storypoints: string | null) => {
+    const filtered = searchCard(assginee, storypoints, data);
+    setfilteredData(filtered);
   };
-  const removeCard = (card: any) => {
+
+  useEffect(() => {
+    localStorage.setItem("data", JSON.stringify(data));
+  }, [data]);
+
+  const addMoreCard = (
+    title: string,
+    listId: string,
+    user: string,
+    storypoints: number
+  ) => {
+    const newState = addCard(data, title, listId, user, storypoints);
+    setData(newState);
+    setfilteredData(newState);
+  };
+
+  const editOrRemoveCard = (card: CardType, type: string) => {
     const temp = { ...data };
-    for (const item in data.lists) {
-      for (const listItem in data.lists[item]) {
-        const deleteIndex = data.lists[item].cards.findIndex(
-          (itemx) => itemx.id === card.id
+    for (const currentList in data.lists) {
+      for (const listItem in data.lists[currentList]) {
+        const cardIndex = data.lists[currentList].cards.findIndex(
+          (itemx: { id: string }) => itemx.id === card.id
         );
-        if (deleteIndex > -1) temp.lists[item].cards.splice(deleteIndex, 1);
+        if (type === "edit") temp.lists[currentList].cards[cardIndex] = card;
+        else if (cardIndex > -1)
+          temp.lists[currentList].cards.splice(cardIndex, 1);
       }
     }
     setData(temp);
+    setfilteredData(temp);
   };
 
   const addMoreList = (title: string) => {
-    const newListId = uuid();
-    const newList = {
-      id: newListId,
-      title,
-      cards: [],
-      user: {},
-    };
-    const newState = {
-      listIds: [...data.listIds, newListId],
-      lists: {
-        ...data.lists,
-        [newListId]: newList,
-      },
-    };
+    const newState = addList(title, data);
     setData(newState);
+    setfilteredData(newState);
   };
 
-  const validations = (source: string, destination: any) => {
-    switch (source) {
-      case "list-1":
-        if (
-          destination === "list-3" ||
-          destination === "list-4" ||
-          destination === "list-5" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-2":
-        if (
-          destination === "list-5" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-3":
-        if (destination === "list-6" || destination === "list-7") return false;
-        return true;
-      case "list-4":
-        if (
-          destination === "list-3" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-5":
-        if (
-          destination === "list-3" ||
-          destination === "list-6" ||
-          destination === "list-7"
-        )
-          return false;
-        return true;
-      case "list-6":
-        if (
-          destination === "list-2" ||
-          destination === "list-4" ||
-          destination === "list-5"
-        )
-          return false;
-
-        return true;
-      case "list-7":
-        return false;
-    }
-  };
   const onDragEnd = (result: DropResult): undefined | void => {
+    setCurrentlyDragged("");
+
     const { destination, source, draggableId, type } = result;
-    if (!validations(source.droppableId, destination?.droppableId)) return;
-    if (!destination) {
-      return;
-    }
+    if (!validate(source.droppableId, destination?.droppableId, data)) return;
+    if (!destination) return;
+
     if (type === "list") {
       const newListIds = data.listIds;
       newListIds.splice(source.index, 1);
@@ -176,7 +143,7 @@ export default function Board(): ReactElement {
     const sourceList = data.lists[source.droppableId];
     const destinationList = data.lists[destination.droppableId];
     const draggingCard = sourceList.cards.filter(
-      (card: { id: any }) => card.id === draggableId
+      (card: { id: string }) => card.id === draggableId
     )[0];
 
     if (source.droppableId === destination.droppableId) {
@@ -190,6 +157,7 @@ export default function Board(): ReactElement {
         },
       };
       setData(newSate);
+      setfilteredData(newSate);
     } else {
       sourceList.cards.splice(source.index, 1);
       destinationList.cards.splice(destination.index, 0, draggingCard);
@@ -203,33 +171,74 @@ export default function Board(): ReactElement {
         },
       };
       setData(newState);
+      setfilteredData(newState);
     }
   };
 
+  const onDragStart = (result: { source: { droppableId: string } }) => {
+    setCurrentlyDragged(result.source.droppableId);
+    setMoving(!moving);
+  };
+
+  const handleChangeDropdown = (
+    selected: { [key: string]: string },
+    type: string
+  ) => {
+    const { value } = selected;
+    let query = "";
+
+    if (query) query = encodeURIComponent(value.split(" ").join("-"));
+    else query = encodeURIComponent(value);
+
+    if (value === "All") queryParams.delete(type);
+    else queryParams.set(type, query);
+
+    history.push({
+      pathname: routes.board,
+      search: queryParams.toString(),
+    });
+  };
+
+  const Filters = () => {
+    return (
+      <div className={classes.row}>
+        <Typography className={classes.filterTitle}>Filters</Typography>
+        <Dropdown
+          styles={styles}
+          handleChangeDropdown={(selected) =>
+            handleChangeDropdown(selected, "assignee")
+          }
+          placeholder={"All Users"}
+          value={dropdownValue}
+          withAll
+        />
+        <Dropdown
+          styles={styles}
+          handleChangeDropdown={(selected) =>
+            handleChangeDropdown(selected, "storypoints")
+          }
+          placeholder={"All Storypoints"}
+          value={spDropdownValue}
+          options={storyPoints}
+        />
+      </div>
+    );
+  };
+
   return (
-    <StoreApi.Provider value={{ addMoreCard, addMoreList, removeCard, users }}>
+    <StoreApi.Provider value={{ addMoreCard, addMoreList, editOrRemoveCard }}>
       <div
         className={classes.root}
         style={{ backgroundColor: preferences.color }}
       >
         <TopBar title={preferences.boardTitle} />
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="app" type="list" direction="horizontal">
-            {(provided) => (
-              <div
-                className={`${classes.listContainer} ${classes.my}`}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {data.listIds.map((listId, index) => {
-                  const list = data.lists[listId];
-                  return <List list={list} key={listId} index={index} />;
-                })}
-                <InputContainer type="list" listId={"x"} />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
+        <Filters />
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+          <DropabbleBody
+            filteredData={filteredData}
+            currentlyDragged={currentlyDragged}
+            moving={moving}
+          />
         </DragDropContext>
       </div>
     </StoreApi.Provider>

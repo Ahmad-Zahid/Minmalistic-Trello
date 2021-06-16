@@ -1,22 +1,12 @@
-import React, { useState } from "react";
+// Packages
+import { useState, ReactElement } from "react";
 import { Paper, Typography, Collapse } from "@material-ui/core";
-import { makeStyles, fade } from "@material-ui/core/styles";
+
+// Components
 import InputCard from "./InputCard";
 
-const useStyle = makeStyles((theme) => ({
-  root: {
-    width: "300px",
-    marginTop: theme.spacing(1),
-  },
-  addCard: {
-    padding: theme.spacing(1, 1, 1, 2),
-    margin: theme.spacing(0, 1, 1, 1),
-    background: "#EBECF0",
-    "&:hover": {
-      backgroundColor: fade("#000", 0.25),
-    },
-  },
-}));
+// Stylesheet
+import { useInputContainerStyle } from "./styles";
 interface InputContainerProps {
   listId: string;
   type: string;
@@ -24,9 +14,10 @@ interface InputContainerProps {
 export default function InputContainer({
   listId,
   type,
-}: InputContainerProps): React.ReactElement {
-  const classes = useStyle();
+}: InputContainerProps): ReactElement {
+  const classes = useInputContainerStyle();
   const [open, setOpen] = useState<boolean>(false);
+  
   return (
     <div className={classes.root}>
       <Collapse in={open}>

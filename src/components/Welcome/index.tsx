@@ -1,56 +1,33 @@
 // Packages
-import { useState, useEffect,ReactElement } from "react";
+import { useState, ReactElement } from "react";
 import { Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { CirclePicker } from "react-color";
 import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+// Actions
+import { getUsers } from "../../store/users/actions";
 
 // Navigation
 import { useAuth } from "../../routes";
+
+// Constants
 import { routes } from "../../constants/routes";
 
-const useStyle = makeStyles(() => ({
-  container: {
-    display: "flex",
-    width: "100vw",
-    height: "100vh",
-    background: "lightblue",
-    alignItems: "center",
-    flexDirection: "column",
-  },
-  body: {
-    display: "flex",
-    width: "100vw",
-    height: "50vh",
-    alignItems: "center",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  input: {
-    width: "20vw",
-    marginBottom: 10,
-    textDecorationLine: "none",
-  },
-}));
+// Stylesheet
+import { useStyle } from "./styles";
 
 export default function Welcome(): ReactElement {
-  const [currentColor, setCurrentColor] = useState("#000");
+  const [currentColor, setCurrentColor] = useState("#d8d8");
   const [pickColor, setPickColor] = useState(false);
   const [title, setTitle] = useState("");
   const history = useHistory();
   const auth: any = useAuth();
   const classes: any = useStyle();
+  const dispatch = useDispatch();
 
-  // useEffect(()=>{
-  //   const localData = localStorage.getItem("user");
-  //   if (localData) {
-  //     history.replace({
-  //       pathname: routes.board,
-  //     });
-  //   }
-  // },[])
   const handleColorChange = ({ hex }: { hex: any }) => {
     setCurrentColor(hex);
   };
@@ -66,6 +43,7 @@ export default function Welcome(): ReactElement {
       color: currentColor,
     };
     auth.signin(user, () => {
+      dispatch(getUsers());
       history.replace({
         pathname: routes.board,
       });
@@ -106,6 +84,7 @@ export default function Welcome(): ReactElement {
           onClick={onButtonPress}
           variant="contained"
           color="secondary"
+          disabled={title===''}
         >
           Create
         </Button>

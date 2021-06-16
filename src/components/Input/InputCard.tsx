@@ -1,42 +1,24 @@
 // Packages
 import React, { useState, useContext } from "react";
-import { Paper, InputBase, Button, IconButton } from "@material-ui/core";
-import { Clear } from "@material-ui/icons";
-import { makeStyles, fade } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
+import { Paper, InputBase, Button } from "@material-ui/core";
+import Slider from "@material-ui/core/Slider";
+
+// Components
+import Dropdown from "../Dropdown/Dropdown";
 
 // Utils
 import storeApi from "../../utils/context";
 
-const useStyle = makeStyles((theme) => ({
-  card: {
-    width: "280px",
-    margin: theme.spacing(0, 1, 1, 1),
-    paddingBottom: theme.spacing(4),
-  },
-  input: {
-    margin: theme.spacing(1),
-  },
-  btnConfirm: {
-    background: "#5AAC44",
-    color: "#fff",
-    "&:hover": {
-      background: fade("#5AAC44", 0.75),
-    },
-  },
-  confirm: {
-    margin: theme.spacing(0, 1, 1, 1),
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-  },
-}));
+// Constants
+import { UserType } from "../../constants/types";
+import { storypoints } from "../../constants/slider";
+
+// Stylesheet
+import { useInputCardStyle } from "./styles";
+
+const styles = {
+  container: (css: any) => ({ ...css, width: "200px" }),
+};
 interface InputCardProps {
   setOpen: (value: boolean) => void;
   listId: string;
@@ -48,20 +30,22 @@ export default function InputCard({
   listId,
   type,
 }: InputCardProps): React.ReactElement {
-  const classes = useStyle();
-  const { addMoreCard, addMoreList, users } = useContext(storeApi);
+  const classes = useInputCardStyle();
+  const { addMoreCard, addMoreList } = useContext(storeApi);
   const [title, setTitle] = useState<string>("");
-  const [user, setUser] = useState<any>("");
+  const [user, setUser] = useState<UserType | string>("");
+  const [points, setPoints] = useState<number | number[]>(1);
 
-  const handleChange = (event: any) => {
-    setUser(event.target.value);
+  const handleChangeDropdown = (selected: { value: string }) => {
+    setUser(selected.value);
   };
-  const handleOnChange = (e: any): void => {
+  const handleOnInputChange = (e: any): void => {
     setTitle(e.target.value);
   };
+
   const handleBtnConfirm = (): void => {
     if (type === "card") {
-      addMoreCard(title, listId, user);
+      addMoreCard(title, listId, user, points);
       setTitle("");
       setOpen(false);
     } else {
@@ -71,14 +55,25 @@ export default function InputCard({
     }
   };
 
+  const isAddDisabled = () => {
+    if (title === "") return true;
+    if (type === "card" && user === "") return true;
+    return false;
+  };
+
+  function valuetext(value: any) {
+    return `${value}`;
+  }
+  const onChangeSlider = (event: any, value: number | number[]) => {
+    setPoints(value);
+  };
   return (
     <div>
       <div>
         <Paper className={classes.card}>
           <InputBase
-            onChange={handleOnChange}
+            onChange={handleOnInputChange}
             multiline
-            onBlur={() => setOpen(false)}
             fullWidth
             inputProps={{
               className: classes.input,
@@ -92,37 +87,39 @@ export default function InputCard({
           />
         </Paper>
         {type === "card" && (
-          <FormControl className={classes.formControl}>
-            <InputLabel htmlFor="age-native-simple">Select Member</InputLabel>
-            <Select
-              native
-              value={user.name ? user.name.first + " " : user}
-              onChange={handleChange}
-              inputProps={{
-                name: "members",
-                id: "members-native-simple",
-              }}
-            >
-              <option aria-label="None" value="" />
-              {users.length > 0 &&
-                users.map((item: any) => {
-                  return (
-                    <option value={item}>
-                      {item.name.first + " " + item.name.last}
-                    </option>
-                  );
-                })}
-            </Select>
-          </FormControl>
+          <Dropdown
+            styles={styles}
+            handleChangeDropdown={handleChangeDropdown}
+            placeholder={"Select User"}
+          />
+        )}
+        {type === "card" && (
+          <div style={{ marginLeft: "15px" }}>
+            Choose story points
+            <Slider
+              getAriaValueText={valuetext}
+              step={null}
+              min={1}
+              style={{ width: "200px" }}
+              valueLabelDisplay="auto"
+              marks={storypoints}
+              max={13}
+              onChangeCommitted={onChangeSlider}
+            />
+          </div>
         )}
       </div>
       <div className={classes.confirm}>
-        <Button className={classes.btnConfirm} onClick={handleBtnConfirm}>
+        <Button
+          disabled={isAddDisabled()}
+          className={classes.btnConfirm}
+          onClick={handleBtnConfirm}
+        >
           {type === "card" ? "Add Card" : "Add List"}
         </Button>
-        <IconButton onClick={() => setOpen(false)}>
-          <Clear />
-        </IconButton>
+        <Button className={classes.btnCancel} onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
       </div>
     </div>
   );

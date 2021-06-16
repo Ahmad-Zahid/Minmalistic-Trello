@@ -1,48 +1,86 @@
-import React, { useContext } from "react";
-import { Paper, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+// Packages
+import { useContext, useState, ReactElement } from "react";
+import { Paper, Typography, InputBase } from "@material-ui/core";
 import { Draggable } from "react-beautiful-dnd";
-import { Delete } from "@material-ui/icons";
-import storeApi from "../../utils/context";
-// import Avatar from '@material-ui/core/Avatar';
+import { Check, Delete, Edit } from "@material-ui/icons";
 
-const useStyle = makeStyles((theme) => ({
-  card: {
-    padding: theme.spacing(2, 2, 2, 2),
-    margin: theme.spacing(2),
-    display: "flex",
-    justifyContent: "space-between",
-  },
-}));
+// Utils
+import context from "../../utils/context";
 
+// Types
+import { CardType } from "../../constants/types";
+
+// Stylesheet
+import { useStyle } from "./styles";
 interface CardProps {
-  card: {
-    id: string;
-    title: string;
-    user:any
-  };
+  card: CardType;
   index: number;
 }
-export default function Card({ card, index }: CardProps): React.ReactElement {
+export default function Card({ card, index }: CardProps): ReactElement {
+  const { editOrRemoveCard } = useContext(context);
+  const { user, title: titleProps, id, storypoints } = card;
+  const [showSubContainer, setShowSubContainer] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
+  const [title, setTitle] = useState(titleProps);
   const classes = useStyle();
-  const { removeCard } = useContext(storeApi);
 
-  const handleClick = () => {
-    removeCard(card)
+  const handleClick = (type: string) => {
+    if (type === "remove") editOrRemoveCard(card, "remove");
+    else setIsEditable(true);
   };
-  // console.log('card.user',(card.user))
+
+  const handleOnInputChange = (e: { target: { value: string } }): void => {
+    setTitle(e.target.value);
+  };
+
+  const onSave = () => {
+    const modifiedCard = {
+      id: id,
+      title: title,
+      user: user,
+    };
+    editOrRemoveCard(modifiedCard, "edit");
+    setIsEditable(false);
+  };
+
   return (
-    <Draggable draggableId={card.id} index={index}>
+    <Draggable draggableId={id.toString()} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
           {...provided.dragHandleProps}
           {...provided.draggableProps}
         >
-          <Paper className={classes.card}>
-            <Typography>{card.title}</Typography>
-            {/* <Avatar alt="Remy Sharp" src={card.user.picture.thumbnail} /> */}
-            <Delete onClick={handleClick} />
+          <Paper
+            onMouseEnter={() => setShowSubContainer(true)}
+            onMouseLeave={() => setShowSubContainer(false)}
+            className={classes.card}
+          >
+            <div style={{ flexDirection: "column" }}>
+              {isEditable ? (
+                <InputBase
+                  onChange={handleOnInputChange}
+                  multiline
+                  fullWidth
+                  value={title}
+                />
+              ) : (
+                <Typography>{title}</Typography>
+              )}
+              <div className={classes.rowContainer}>
+                <Typography variant="subtitle2">{user ? user : ""}</Typography>
+                <div className={classes.storypointContainer}>
+                  <Typography>{storypoints}</Typography>
+                </div>
+              </div>
+            </div>
+            {showSubContainer && !isEditable && (
+              <div>
+                <Edit onClick={() => handleClick("edit")} />
+                <Delete onClick={() => handleClick("remove")} />
+              </div>
+            )}
+            {isEditable && <Check color="secondary" onClick={onSave} />}
           </Paper>
         </div>
       )}

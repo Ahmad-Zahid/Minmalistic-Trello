@@ -1,59 +1,93 @@
-import React from "react";
+// Packages
+import { ReactElement, lazy, Suspense, useEffect } from "react";
 import { Paper, CssBaseline } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import Title from "./Title";
-import Card from "../Card";
-import InputContainer from "../Input/InputContainer";
 
-const useStyle = makeStyles((theme) => ({
-  root: {
-    backgroundColor: "#EBECF0",
-    marginLeft: theme.spacing(1),
-    [theme.breakpoints.down("xs")]: {
-      marginRight: theme.spacing(1),
-    },
-  },
-  cardContainer: {
-    marginTop: theme.spacing(4),
-  },
-}));
+// Components
+const Title = lazy(() => import("./Title"));
+const Card = lazy(() => import("../Card"));
+const InputContainer = lazy(() => import("../Input/InputContainer"));
+
+// Stylesheet
+import { useListStyle } from "./styles";
+import { CardType } from "../../constants/types";
 
 interface ListProps {
   list: {
     id: string;
     title: string;
-    cards: Array<any>;
+    cards: Array<CardType>;
   };
   index: number;
+  currentlyDragged: string;
+  allLists: any;
+  moving: any;
 }
-export default function List({ list, index }: ListProps): React.ReactElement {
-  const classes = useStyle();
+export default function List({
+  list,
+  index,
+  currentlyDragged,
+  allLists,
+  moving,
+}: ListProps): ReactElement {
+  const classes = useListStyle();
+  const { title, id, cards } = list;
+
+  const isDropabble = () => {
+    if (currentlyDragged !== "")
+      if (allLists[currentlyDragged].restricted.includes(list.id)) return true;
+    return false;
+  };
+  useEffect(() => {
+    isDropabble();
+  }, [moving]);
+
+  const loading = () => <div>Loading...</div>;
+
   return (
-    <Draggable draggableId={list.id} index={index}>
-      {(provided) => (
-        <div {...provided.draggableProps} ref={provided.innerRef}>
-          <Paper className={classes.root} {...provided.dragHandleProps}>
-            <CssBaseline />
-            <Title title={list.title} />
-            <Droppable droppableId={list.id}>
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={classes.cardContainer}
-                >
-                  {list.cards.map((card, index) => (
-                    <Card key={card.id} card={card} index={index} />
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-            <InputContainer listId={list.id} type="card" />
-          </Paper>
-        </div>
-      )}
-    </Draggable>
+    <div key={index}>
+      <Paper
+        className={classes.root}
+        style={isDropabble() ? { backgroundColor: "lightgray" } : {}}
+      >
+        <CssBaseline />
+        <Suspense fallback={loading}>
+          <Title title={title} />
+        </Suspense>
+        <Draggable draggableId={id.toString()} index={index}>
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.dragHandleProps}
+              {...provided.draggableProps}
+            >
+              <Droppable
+                isDropDisabled={isDropabble()}
+                droppableId={id.toString()}
+              >
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={classes.cardContainer}
+                  >
+                    {cards.map((card, index) => (
+                      <Suspense fallback={loading}>
+                        <Card key={card.id} card={card} index={index} />
+                      </Suspense>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          )}
+        </Draggable>
+
+        <Suspense fallback={loading}>
+          <InputContainer listId={id} type="card" />
+        </Suspense>
+      </Paper>
+    </div>
   );
 }

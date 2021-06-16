@@ -9,7 +9,7 @@ export function PrivateRoute({
     children,
     ...rest
   }: {
-    children: any;
+    children: ReactElement;
   }): ReactElement {
     return (
       <Route
